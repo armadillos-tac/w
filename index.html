@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Armadillo Tacticals | Ingeniería Táctica Artesanal</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            armadillo: {
+              burgundy: '#51142A',
+              gold: '#D29B38',
+              teal: '#0A808C',
+              dark: '#22252A',
+              lightCard: '#2B2F36'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #22252A;
+      color: #E2E8F0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+  </style>
+</head>
+<body class="bg-armadillo-dark text-gray-200 antialiased selection:bg-armadillo-teal selection:text-white">
+
+  <!-- 1. ENCABEZADO (Header) -->
+  <header class="sticky top-0 z-50 bg-armadillo-dark/95 backdrop-blur border-b border-armadillo-gold/30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <!-- AQUÍ SE CARGA TU LOGOTIPO SVG ORIGINAL -->
+        <img src="arm.svg" alt="Armadillo Tacticals Logo" class="h-12 w-auto drop-shadow-[0_2px_8px_rgba(210,155,56,0.3)]">
+        <div>
+          <span class="text-xl font-bold tracking-wider text-white block">Armadillo Tacticals</span>
+          <span class="text-xs text-armadillo-gold tracking-widest uppercase">Ingeniería Táctica Artesanal</span>
+        </div>
+      </div>
+      <nav class="hidden md:flex space-x-6 text-sm">
+        <a href="#filosofia" class="hover:text-armadillo-gold transition">Filosofía</a>
+        <a href="#aplicaciones" class="hover:text-armadillo-gold transition">Aplicaciones</a>
+        <a href="#galeria" class="hover:text-armadillo-gold transition">Líneas de Producto</a>
+        <a href="#consultoria" class="hover:text-armadillo-gold transition">Consultoría I+D</a>
+        <a href="#contacto" class="bg-armadillo-burgundy text-armadillo-gold border border-armadillo-gold/50 px-4 py-2 rounded hover:bg-armadillo-gold hover:text-armadillo-dark transition font-semibold">Cotización</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- CARRUSEL DE NOTICIAS Y PUBLICACIONES CIENTÍFICAS -->
+  <section class="bg-armadillo-burgundy/40 border-b border-armadillo-gold/20 py-3 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 flex items-center justify-between text-xs sm:text-sm">
+      <div class="flex items-center space-x-3 truncate">
+        <span class="bg-armadillo-gold text-armadillo-dark font-bold px-2 py-0.5 rounded uppercase tracking-wider text-[10px]">Actualización I+D</span>
+        <p id="carousel-text" class="text-gray-300 truncate">Estudio publicado: Análisis biomecánico de distribución de cargas axiales en arneses de alta resistencia.</p>
+      </div>
+      <div class="flex space-x-2 shrink-0 ml-4">
+        <button onclick="prevNews()" class="text-armadillo-gold hover:text-white px-2">&larr;</button>
+        <button onclick="nextNews()" class="text-armadillo-gold hover:text-white px-2">&rarr;</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. FILOSOFÍA / PROPUESTA DE VALOR (Hero) -->
+  <section id="filosofia" class="relative py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <div class="space-y-6">
+        <span class="text-armadillo-teal font-semibold tracking-widest text-sm uppercase">Propuesta de Valor</span>
+        <h1 class="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">Artesanía, Ergonomía y Resistencia</h1>
+        <p class="text-gray-300 text-base sm:text-lg leading-relaxed">
+          Manufactura a medida basada en principios biomecánicos y técnicos avanzados. Cada pieza combina la durabilidad implacable del cuero vacuno de alta densidad, acero estrutural y aluminio aeronáutico, diseñada para soportar las exigencias operativas más severas del mundo real.
+        </p>
+        <div class="flex flex-wrap gap-2 pt-2">
+          <span class="bg-armadillo-lightCard border border-armadillo-gold/30 text-armadillo-gold px-3 py-1 rounded text-xs uppercase font-medium">Cuero Vacuno</span>
+          <span class="bg-armadillo-lightCard border border-armadillo-gold/30 text-armadillo-gold px-3 py-1 rounded text-xs uppercase font-medium">Aluminio</span>
+          <span class="bg-armadillo-lightCard border border-armadillo-gold/30 text-armadillo-gold px-3 py-1 rounded text-xs uppercase font-medium">Acero</span>
+          <span class="bg-armadillo-lightCard border border-armadillo-gold/30 text-armadillo-gold px-3 py-1 rounded text-xs uppercase font-medium">Biomecánica</span>
+        </div>
+      </div>
+      <div class="flex justify-center">
+        <div class="p-6 bg-armadillo-burgundy rounded-2xl border-2 border-armadillo-gold/40 shadow-2xl max-w-sm w-full text-center">
+          <img src="arm.svg" alt="Escudo Armadillo" class="w-48 h-auto mx-auto mb-4 drop-shadow-lg">
+          <h3 class="text-armadillo-gold font-bold text-lg">Modular Tactical Gear</h3>
+          <p class="text-xs text-gray-300 mt-1">Diseñado para perdurar generaciones.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. ÁREAS DE APLICACIÓN (Las 3 tarjetas principales) -->
+  <section id="aplicaciones" class="py-16 bg-armadillo-dark/60 border-t border-b border-armadillo-gold/20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold text-white">Áreas de Aplicación</h2>
+        <p class="text-armadillo-gold text-sm mt-2">Versatilidad estructural probada en terreno</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Tarjeta 1 -->
+        <div class="bg-armadillo-lightCard border border-armadillo-gold/30 rounded-xl p-6 hover:border-armadillo-teal transition shadow-lg">
+          <div class="w-12 h-12 bg-armadillo-burgundy rounded-lg flex items-center justify-center text-armadillo-gold font-bold mb-4 text-xl">01</div>
+          <h3 class="text-xl font-bold text-white mb-2">Oficios e Industria</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">Sistemas de soporte ergonómico, portaherramientas reforzados y equipo de protección individual adaptado para técnicos, herreros y operadores industriales de alto rendimiento.</p>
+        </div>
+        <!-- Tarjeta 2 -->
+        <div class="bg-armadillo-lightCard border border-armadillo-gold/30 rounded-xl p-6 hover:border-armadillo-teal transition shadow-lg">
+          <div class="w-12 h-12 bg-armadillo-burgundy rounded-lg flex items-center justify-center text-armadillo-gold font-bold mb-4 text-xl">02</div>
+          <h3 class="text-xl font-bold text-white mb-2">Equipamiento Táctico y Operativo</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">Chasis modulares, arneses tácticos y portacargadores diseñados bajo especificaciones rigurosas para misiones de campo, seguridad y operaciones especiales.</p>
+        </div>
+        <!-- Tarjeta 3 -->
+        <div class="bg-armadillo-lightCard border border-armadillo-gold/30 rounded-xl p-6 hover:border-armadillo-teal transition shadow-lg">
+          <div class="w-12 h-12 bg-armadillo-burgundy rounded-lg flex items-center justify-center text-armadillo-gold font-bold mb-4 text-xl">03</div>
+          <h3 class="text-xl font-bold text-white mb-2">Prototipado a Medida</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">Desarrollo de ingeniería inversa y fabricación personalizada de herrajes y piezas únicas combinando metales ligeros y guarnicionería tradicional.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. LÍNEAS DE PRODUCTO / PROTOTIPOS (Galería) -->
+  <section id="galeria" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-bold text-white">Líneas de Producto y Prototipos</h2>
+      <p class="text-armadillo-gold text-sm mt-2">Especificaciones técnicas de hardware modular</p>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- Producto 1 -->
+      <div class="bg-armadillo-lightCard border border-armadillo-gold/30 rounded-lg overflow-hidden flex flex-col">
+        <div class="h-48 bg-armadillo-burgundy/80 flex items-center justify-center p-4 border-b border-armadillo-gold/20">
+          <span class="text-armadillo-gold font-mono text-center text-sm font-bold">[ PROTOTIPO ALPHA ]</span>
+        </div>
+        <div class="p-5 flex-1 flex flex-col justify-between">
+          <div>
+            <h3 class="text-white font-bold text-lg mb-1">Chasis Modular MK-I</h3>
+            <p class="text-armadillo-teal text-xs mb-3 font-semibold">Cuero vacuno, Aluminio 6061</p>
+            <p class="text-gray-400 text-xs leading-relaxed">Estructura base de soporte ergonómico para distribución de peso en largas jornadas operativas.</p>
+          </div>
+          <button onclick="openModal('Chasis Modular MK-I', 'Cuero vacuno de 4mm, herrajes de aluminio anodizado 6061 y remaches de acero inoxidable.', 'Diseñado para mitigar la fatiga lumbar mediante transferencia biomecánica de carga al tren inferior.')" class="mt-4 w-full bg-armadillo-burgundy text-armadillo-gold border border-armadillo-gold/40 py-2 rounded text-xs font-bold hover:bg-armadillo-gold hover:text-armadillo-dark transition">Ver Detalles</button>
+        </div>
+      </div>
+      <!-- Producto 2 -->
+      <div class="bg-armadillo-lightCard border border-armadillo-gold/30 rounded-lg overflow-hidden flex flex-col">
+        <div class="h-48 bg-armadillo-burgundy/80 flex items-center justify-center p-4 border-b border-armadillo-gold/20">
+          <span class="text-armadillo-gold font-mono text-center text-sm font-bold">[ PROTOTIPO BETA ]</span>
+        </div>
+        <div class="p-5 flex-1 flex flex-col justify-between">
+          <div>
+            <h3 class="text-white font-bold text-lg mb-1">Arnés de Carga Táctica</h3>
+            <p class="text-armadillo-teal text-xs mb-3 font-semibold">Cordura balística, Cuero, Acero</p>
+            <p class="text-gray-400 text-xs leading-relaxed">Sistema de anclaje rápido con paneles modulares intercambiables para herramientas y accesorios.</p>
+          </div>
+          <button onclick="openModal('Arnés de Carga Táctica', 'Cordura de alta tenacidad, refuerzos de cuero vacuno curtido al vegetal y hebillas de acero estructural.', 'Estructura simétrica optimizada para libertad total de movimiento en hombros y brazos.')" class="mt-4 w-full bg-armadillo-burgundy text-armadillo-gold border border-armadillo-gold/40 py-2 rounded text-xs font-bold hover:bg-armadillo-gold hover:text-armadillo-dark transition">Ver Detalles</button>
+        </div>
+      </div>
+      <!-- Producto 3 -->
+      <div class="bg-armadillo-lightCard border border-armadillo-gold/30 rounded-lg overflow-hidden flex flex-col">
+        <div class="h-48 bg-armadillo-burgundy/80 flex items-center justify-center p-4 border-b border-armadillo-gold/20">
+          <span class="text-armadillo-gold font-mono text-center text-sm font-bold">[ PROTOTIPO GAMMA ]</span>
+        </div>
+        <div class="p-5 flex-1 flex flex-col justify-between">
+          <div>
+            <h3 class="text-white font-bold text-lg mb-1">Portaherramientas Industrial</h3>
+            <p class="text-armadillo-teal text-xs mb-3 font-semibold">Cuero grueso, Remaches de acero</p>
+            <p class="text-gray-400 text-xs leading-relaxed">Cartuchera reforzada para herramientas de precisión, diseñada para resistir fricción y desgaste extremo.</p>
+          </div>
+          <button onclick="openModal('Portaherramientas Industrial', 'Cuero vacuno graneado de alta densidad y costuras de hilo de alta resistencia encerado.', 'Especialmente construido para técnicos en mantenimiento y reparación de maquinaria pesada.')" class="mt-4 w-full bg-armadillo-burgundy text-armadillo-gold border border-armadillo-gold/40 py-2 rounded text-xs font-bold hover:bg-armadillo-gold hover:text-armadillo-dark transition">Ver Detalles</button>
+        </div>
+      </div>
+      <!-- Producto 4 -->
+      <div class="bg-armadillo-lightCard border border-armadillo-gold/30 rounded-lg overflow-hidden flex flex-col">
+        <div class="h-48 bg-armadillo-burgundy/80 flex items-center justify-center p-4 border-b border-armadillo-gold/20">
+          <span class="text-armadillo-gold font-mono text-center text-sm font-bold">[ PROTOTIPO DELTA ]</span>
+        </div>
+        <div class="p-5 flex-1 flex flex-col justify-between">
+          <div>
+            <h3 class="text-white font-bold text-lg mb-1">Kit de Integración Cruzada</h3>
+            <p class="text-armadillo-teal text-xs mb-3 font-semibold">Aluminio, Acero inoxidable</p>
+            <p class="text-gray-400 text-xs leading-relaxed">Adaptadores universales y conectores modulares para acoplar equipos de diferentes normativas.</p>
+          </div>
+          <button onclick="openModal('Kit de Integración Cruzada', 'Placas de aluminio mecanizadas por CNC y tornillería de acero inoxidable.', 'Permite compatibilidad total entre plataformas tácticas y de trabajo industrial pesado.')" class="mt-4 w-full bg-armadillo-burgundy text-armadillo-gold border border-armadillo-gold/40 py-2 rounded text-xs font-bold hover:bg-armadillo-gold hover:text-armadillo-dark transition">Ver Detalles</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. FORMULARIO DE CONTACTO / COTIZACIÓN -->
+  <section id="contacto" class="py-16 bg-armadillo-dark/80 border-t border-armadillo-gold/20">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="bg-armadillo-lightCard border border-armadillo-gold/40 rounded-2xl p-8 shadow-2xl">
+        <div class="text-center mb-8">
+          <h2 class="text-2xl font-bold text-white">Solicitar Proyecto o Cotización a Medida</h2>
+          <p class="text-gray-400 text-xs mt-2">Especifica los requerimientos técnicos de tu equipamiento</p>
+        </div>
+        <form onsubmit="handleFormSubmit(event)" class="space-y-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-xs font-medium text-armadillo-gold uppercase mb-2">Nombre</label>
+              <input type="text" required class="w-full bg-armadillo-dark border border-gray-700 rounded px-4 py-2.5 text-white text-sm focus:outline-none focus:border-armadillo-teal" placeholder="Tu nombre">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-armadillo-gold uppercase mb-2">Correo Electrónico</label>
+              <input type="email" required class="w-full bg-armadillo-dark border border-gray-700 rounded px-4 py-2.5 text-white text-sm focus:outline-none focus:border-armadillo-teal" placeholder="correo@ejemplo.com">
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-armadillo-gold uppercase mb-2">Tipo de Trabajo</label>
+            <select class="w-full bg-armadillo-dark border border-gray-700 rounded px-4 py-2.5 text-white text-sm focus:outline-none focus:border-armadillo-teal">
+              <option>Chasis y Soportes Modulares</option>
+              <option>Equipamiento Táctico y Operativo</option>
+              <option>Portaherramientas para Oficios e Industria</option>
+              <option>Consultoría en Ergonomía y Prototipado I+D</option>
+              <option>Desarrollo de Pieza Única a Medida</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-armadillo-gold uppercase mb-2">Materiales Deseados</label>
+            <input type="text" required class="w-full bg-armadillo-dark border border-gray-700 rounded px-4 py-2.5 text-white text-sm focus:outline-none focus:border-armadillo-teal" placeholder="Ej. Cuero vacuno, Aluminio aeronáutico, Acero...">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-armadillo-gold uppercase mb-2">Descripción del Proyecto</label>
+            <textarea rows="4" required class="w-full bg-armadillo-dark border border-gray-700 rounded px-4 py-2.5 text-white text-sm focus:outline-none focus:border-armadillo-teal" placeholder="Detalla las especificaciones técnicas, medidas o requerimientos biomecánicos..."></textarea>
+          </div>
+          <button type="submit" class="w-full bg-armadillo-burgundy text-armadillo-gold border border-armadillo-gold py-3 rounded font-bold hover:bg-armadillo-gold hover:text-armadillo-dark transition tracking-wider uppercase text-sm">Enviar Solicitud de Proyecto</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. ANEXO ESPECIAL (Consultoría y Prototipado) -->
+  <section id="consultoria" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-gradient-to-r from-armadillo-burgundy to-armadillo-lightCard border-l-4 border-armadillo-gold p-8 rounded-r-2xl shadow-xl">
+      <span class="text-armadillo-teal text-xs font-bold uppercase tracking-widest">Anexo Especial</span>
+      <h2 class="text-2xl font-bold text-white mt-1 mb-3">Consultoría en Diseño y Ciencias del Trabajo</h2>
+      <p class="text-gray-300 text-sm leading-relaxed max-w-4xl">
+        Servicios especializados de I+D aplicados a la ergonomía industrial y táctica. Desarrollamos investigación conjunta con instituciones y empresas enfocadas en optimizar la interacción humano-máquina, reducir la fatiga postural y diseñar soluciones de carga basadas en análisis biomecánico riguroso.
+      </p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="bg-armadillo-dark border-t border-armadillo-gold/20 py-8 text-center text-xs text-gray-500">
+    <div class="flex justify-center items-center space-x-3 mb-3">
+      <img src="arm.svg" alt="Logo" class="h-6 w-auto opacity-70">
+      <span class="text-gray-400 font-semibold tracking-widest">ARMADILLO TACTICALS</span>
+    </div>
+    <p>&copy; 2026 Armadillo Tacticals. Ingeniería Táctica Artesanal. Todos los derechos reservados.</p>
+  </footer>
+
+  <!-- MODAL DE PRODUCTO -->
+  <div id="product-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+    <div class="bg-armadillo-lightCard border border-armadillo-gold max-w-md w-full p-6 rounded-xl relative shadow-2xl">
+      <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white font-bold text-lg">&times;</button>
+      <h3 id="modal-title" class="text-xl font-bold text-white mb-2"></h3>
+      <p class="text-armadillo-gold text-xs font-semibold mb-4" id="modal-materials"></p>
+      <p class="text-gray-300 text-sm leading-relaxed mb-6" id="modal-desc"></p>
+      <button onclick="closeModal()" class="w-full bg-armadillo-burgundy text-armadillo-gold border border-armadillo-gold/50 py-2 rounded text-xs font-bold hover:bg-armadillo-gold hover:text-armadillo-dark transition">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- MODAL DE ÉXITO FORMULARIO -->
+  <div id="success-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+    <div class="bg-armadillo-lightCard border border-armadillo-gold max-w-sm w-full p-6 rounded-xl text-center relative shadow-2xl">
+      <h3 class="text-lg font-bold text-white mb-2">¡Solicitud Recibida!</h3>
+      <p class="text-gray-300 text-xs mb-6">Hemos registrado los detalles de tu proyecto. Nos pondremos en contacto contigo a la brevedad.</p>
+      <button onclick="closeSuccessModal()" class="w-full bg-armadillo-burgundy text-armadillo-gold border border-armadillo-gold/50 py-2 rounded text-xs font-bold hover:bg-armadillo-gold hover:text-armadillo-dark transition">Aceptar</button>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT INTERACTIVO -->
+  <script>
+    // Carrusel de noticias
+    const newsArray = [
+      "Estudio publicado: Análisis biomecánico de distribución de cargas axiales en arneses de alta resistencia.",
+      "Nuevo prototipo de chasis modular probado en condiciones extremas de fricción y torsión.",
+      "Consultoría I+D: Alianzas estratégicas para el desarrollo de equipo ergonómico industrial certificado."
+    ];
+    let currentNewsIndex = 0;
+    const carouselText = document.getElementById('carousel-text');
+
+    function updateNews() {
+      carouselText.style.opacity = 0;
+      setTimeout(() => {
+        carouselText.textContent = newsArray[currentNewsIndex];
+        carouselText.style.opacity = 1;
+      }, 200);
+    }
+    function nextNews() {
+      currentNewsIndex = (currentNewsIndex + 1) % newsArray.length;
+      updateNews();
+    }
+    function prevNews() {
+      currentNewsIndex = (currentNewsIndex - resLengthMask(newsArray.length)) % newsArray.length;
+      if (currentNewsIndex < 0) currentNewsIndex += newsArray.length;
+      updateNews();
+    }
+    function resLengthMask(len) { return 1; }
+    setInterval(nextNews, 6000);
+
+    // Modales de producto
+    function openModal(title, materials, desc) {
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-materials').textContent = "Materiales: " + materials;
+      document.getElementById('modal-desc').textContent = desc;
+      document.getElementById('product-modal').classList.remove('hidden');
+      document.getElementById('product-modal').classList.add('flex');
+    }
+    function closeModal() {
+      document.getElementById('product-modal').classList.remove('flex');
+      document.getElementById('product-modal').classList.add('hidden');
+    }
+
+    // Formulario
+    function handleFormSubmit(event) {
+      event.preventDefault();
+      document.getElementById('success-modal').classList.remove('hidden');
+      document.getElementById('success-modal').classList.add('flex');
+      event.target.reset();
+    }
+    function closeSuccessModal() {
+      document.getElementById('success-modal').classList.remove('flex');
+      document.getElementById('success-modal').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
