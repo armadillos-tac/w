@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo | Armadillo Tacticals</title>
+<link rel="stylesheet" href="../base.css">
+</head>
+<body data-root="../">
+<header></header>
+<main class="wrap">
+  <div class="stack">
+    <h1 style="font-size:var(--t4)">Catálogo</h1>
+    <p class="muted">Equipo modular fabricado a medida. Elige una pieza para ver sus materiales y solicitar cotización.</p>
+    <div class="tags" id="chips"></div>
+  </div>
+  <div class="fit narrow" id="grid" style="margin-top:var(--s4)"></div>
+</main>
+<dialog id="d"><div class="stack">
+  <h3 id="dt"></h3><p class="teal small" id="dm"></p><p class="muted" id="dd"></p><p class="muted" id="du"></p><p class="gold small" id="dp"></p>
+  <a class="btn" href="../index.html#contacto">Solicitar cotización</a>
+  <button class="btn" type="button" data-close>Cerrar</button>
+</div></dialog>
+<footer></footer>
+<script src="../site.js"></script>
+<script>
+const precio = p => p.precio ? "$" + p.precio.toLocaleString("es-MX") + " MXN" : "Cotización a medida";
+fetch("../datos/productos.json").then(r => r.json()).then(data => {
+  const cats = ["Todos", ...new Set(data.map(p => p.categoria))];
+  let sel = "Todos";
+  const draw = () => {
+    $("chips").innerHTML = cats.map(c => `<button class="chip" type="button" aria-pressed="${c === sel}" data-c="${esc(c)}">${esc(c)}</button>`).join("");
+    $("grid").innerHTML = data.filter(p => sel === "Todos" || p.categoria === sel).map(p => `
+      <div class="cell"><article class="card product">
+        <div class="ph">${p.imagen ? `<img src="../${esc(p.imagen)}" alt="${esc(p.nombre)}">` : `[ PROTOTIPO ${esc(p.codigo)} ]`}</div>
+        <div class="body">
+          <div class="stack"><h3>${esc(p.nombre)}</h3><p class="teal small">${esc(p.materiales)}</p><p class="muted small">${esc(p.resumen)}</p><p class="gold small">${precio(p)}</p></div>
+          <button class="btn" type="button" data-id="${esc(p.id)}">Ver detalles</button>
+        </div></article></div>`).join("");
+  };
+  $("chips").addEventListener("click", e => { const b = e.target.closest("[data-c]"); if (b) { sel = b.dataset.c; draw(); } });
+  $("grid").addEventListener("click", e => {
+    const b = e.target.closest("[data-id]"); if (!b) return;
+    const p = data.find(x => x.id === b.dataset.id);
+    $("dt").textContent = p.nombre; $("dm").textContent = "Materiales: " + p.materiales_detalle;
+    $("dd").textContent = p.resumen; $("du").textContent = p.uso; $("dp").textContent = precio(p);
+    $("d").showModal();
+  });
+  draw();
+});
+</script>
+</body>
+</html>
