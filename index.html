@@ -165,46 +165,33 @@ document.querySelectorAll("dialog").forEach(d => {
 $("quote").addEventListener("submit", async e => {
   e.preventDefault();
   
-  const nombre = $("n").value.trim();
-  const correo = $("e").value.trim();
-  const tipo = $("t").value;
-  const materiales = $("m").value.trim();
-  const descripcion = $("d").value.trim();
-  
-  const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1566010118636703754/xHLH4OodmNXxVGxqA8PfpE9nccsIQtv_8EEhRU9jZ6SRReasiSdaR1fV_-jvHapIHJzX";
-
-  const payload = {
-    embeds: [{
-      title: "🛠️ Nueva Solicitud de Proyecto / Cotización",
-      color: 3447003,
-      fields: [
-        { name: "Cliente", value: nombre, inline: true },
-        { name: "Contacto (Email)", value: correo, inline: true },
-        { name: "Tipo de Trabajo", value: tipo, inline: false },
-        { name: "Materiales Solicitados", value: materiales, inline: false },
-        { name: "Descripción del Proyecto", value: descripcion, inline: false }
-      ],
-      footer: { text: "Armadillo Tacticals | Cotización Web" },
-      timestamp: new Date().toISOString()
-    }]
+  const datos = {
+    nombre: $("n").value.trim(),
+    correo: $("e").value.trim(),
+    tipo: $("t").value,
+    materiales: $("m").value.trim(),
+    descripcion: $("d").value.trim()
   };
 
   try {
-    const response = await fetch(DISCORD_WEBHOOK_URL, {
+    // Apuntamos a nuestra Serverless Function segura en Vercel
+    const response = await fetch('/api/cotizar', {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(datos)
     });
 
     if (!response.ok) {
-      console.error("Error al enviar a Discord:", response.status, await response.text());
+      throw new Error("Error en el servidor al procesar la cotización");
     }
-  } catch (err) {
-    console.error("Error de red al conectar con Discord:", err);
-  }
 
-  $("ok-modal").showModal();
-  e.target.reset();
+    $("ok-modal").showModal();
+    e.target.reset();
+
+  } catch (err) {
+    console.error("Error:", err);
+    alert("Hubo un problema al enviar la solicitud. Inténtalo de nuevo.");
+  }
 });
 </script>
 </body>
