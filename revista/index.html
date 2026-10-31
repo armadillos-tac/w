@@ -20,7 +20,7 @@
 <script src="../site.js"></script>
 <script>
 fetch("../datos/articulos.json").then(r => r.json()).then(all => {
-  const data = all.sort((a, b) => b.fecha.localeCompare(a.fecha));
+  const data = all.filter(a => !a.borrador).sort((a, b) => b.fecha.localeCompare(a.fecha));
   const cats = ["Todas", ...new Set(data.map(a => a.categoria))];
   let sel = "Todas";
   const draw = () => {
