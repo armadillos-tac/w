@@ -162,7 +162,49 @@ document.querySelectorAll("dialog").forEach(d => {
     if (fuera || e.target.hasAttribute("data-close")) d.close();
   });
 });
-$("quote").addEventListener("submit", e => { e.preventDefault(); $("ok-modal").showModal(); e.target.reset(); });
+$("quote").addEventListener("submit", async e => {
+  e.preventDefault();
+  
+  const nombre = $("n").value.trim();
+  const correo = $("e").value.trim();
+  const tipo = $("t").value;
+  const materiales = $("m").value.trim();
+  const descripcion = $("d").value.trim();
+  
+  // Pega aquí la URL que copiaste de Discord:
+  const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/TU_WEBHOOK_AQUI";
+
+  const payload = {
+    embeds: [{
+      title: "🛠️ Nueva Solicitud de Proyecto / Cotización",
+      color: 3447003,
+      fields: [
+        { name: "Cliente", value: nombre, inline: true },
+        { name: "Contacto (Email)", value: correo, inline: true },
+        { name: "Tipo de Trabajo", value: tipo, inline: false },
+        { name: "Materiales Solicitados", value: materiales, inline: false },
+        { name: "Descripción del Proyecto", value: descripcion, inline: false }
+      ],
+      footer: { text: "Armadillo Tacticals | Cotización Web" },
+      timestamp: new Date().toISOString()
+    }]
+  };
+
+  try {
+    if (!DISCORD_WEBHOOK_URL.includes("TU_WEBHOOK_AQUI")) {
+      await fetch(DISCORD_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    }
+  } catch (err) {
+    console.error("Error al enviar a Discord:", err);
+  }
+
+  $("ok-modal").showModal();
+  e.target.reset();
+});
 </script>
 </body>
 </html>
