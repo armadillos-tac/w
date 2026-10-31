@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centro de Control - Armadillo Tacticals</title>
+    <link rel="stylesheet" href="../base.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <header id="site-header"></header>
+
+    <main class="container">
+        <h1>Centro de Control & Gestión</h1>
+        <p>Sistema operativo de taller, calidad, seguridad y entrenamiento basado en Markdown y Google Drive.</p>
+
+        <!-- Barra de Estado de Drive / Autenticación -->
+        <section class="card auth-card" style="margin-bottom: 2rem; padding: 1rem; border: 1px solid var(--border, #ccc);">
+            <h3>Estado de Conexión</h3>
+            <p id="drive-status">Desconectado de Google Drive.</p>
+            <button id="btn-auth" class="btn" onclick="handleAuthClick()">Conectar con Google Drive</button>
+            <button id="btn-signout" class="btn" onclick="handleSignoutClick()" style="display:none;">Desconectar</button>
+        </section>
+
+        <!-- Navegación interna del Centro -->
+        <nav class="center-nav" style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+            <button class="btn" onclick="switchTab('taller')">Taller & Proyectos</button>
+            <button class="btn" onclick="switchTab('entrenamiento')">Entrenamiento</button>
+            <button class="btn" onclick="switchTab('foda')">FODA</button>
+            <button class="btn" onclick="switchTab('semanal')">Plan Semanal</button>
+        </nav>
+
+        <!-- Contenedor dinámico de módulos -->
+        <section id="app-workspace">
+            <div id="tab-taller" class="tab-content">
+                <h2>Gestión de Taller y Proyectos</h2>
+                <p>Aquí se gestionarán los planos, notas, materiales y tareas de herrería.</p>
+            </div>
+            <div id="tab-entrenamiento" class="tab-content" style="display:none;">
+                <h2>Control de Entrenamiento y Microciclos</h2>
+                <p>Registro de series, repeticiones, cargas y cálculo de sRPE.</p>
+            </div>
+            <div id="tab-foda" class="tab-content" style="display:none;">
+                <h2>Matriz FODA</h2>
+                <p>Análisis estratégico vinculado a proyectos.</p>
+            </div>
+            <div id="tab-semanal" class="tab-content" style="display:none;">
+                <h2>Plan Semanal (Lunes a Domingo)</h2>
+                <p>Distribución de tareas y bloques con control de cumplimiento.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer id="site-footer"></footer>
+
+    <script src="../site.js"></script>
+    <script>
+        // Lógica específica para el centro de control
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+            const target = document.getElementById(`tab-${tabName}`);
+            if (target) target.style.display = 'block';
+        }
+
+        // Placeholder para la inicialización de Google Identity Services
+        let tokenClient;
+        let accessToken = null;
+
+        function gapiLoaded() {
+            // Configuración del cliente OAuth con el Client ID público
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: 'TU_CLIENT_ID_DE_GOOGLE.apps.googleusercontent.com',
+                scope: 'https://www.googleapis.com/auth/drive.file',
+                callback: (resp) => {
+                    if (resp.error !== undefined) {
+                        console.error(resp);
+                        return;
+                    }
+                    accessToken = resp.access_token;
+                    document.getElementById('drive-status').innerText = 'Conectado a Google Drive (Carpeta Armadillo Centro)';
+                    document.getElementById('btn-auth').style.display = 'none';
+                    document.getElementById('btn-signout').style.display = 'inline-block';
+                },
+            });
+        }
+
+        function handleAuthClick() {
+            if (tokenClient) {
+                tokenClient.requestAccessToken({prompt: 'consent'});
+            }
+        }
+
+        function handleSignoutClick() {
+            if (accessToken) {
+                google.accounts.oauth2.revoke(accessToken, () => {
+                    accessToken = null;
+                    document.getElementById('drive-status').innerText = 'Desconectado de Google Drive.';
+                    document.getElementById('btn-auth').style.display = 'inline-block';
+                    document.getElementById('btn-signout').style.display = 'none';
+                });
+            }
+        }
+
+        window.onload = () => {
+            // Inicializar GSI cuando cargue la página
+            if (typeof google !== 'undefined') {
+                gapiLoaded();
+            }
+        };
+    </script>
+</body>
+</html>
