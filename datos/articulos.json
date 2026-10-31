@@ -66,5 +66,15 @@
       },
       "En puntos sometidos a cargas repetidas o a impactos fuertes, el acero ofrece más margen. Por eso combinamos ambos materiales según la función de cada pieza."
     ]
+  },
+  {
+    "slug": "borrador",
+    "titulo": "borrador",
+    "fecha": "2026-10-30",
+    "categoria": "borrador",
+    "resumen": "borrador",
+    "cuerpo": [
+      "borrador"
+    ]
   }
 ]
