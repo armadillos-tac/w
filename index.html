@@ -4,208 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Armadillo Tacticals | Ingeniería Táctica Artesanal</title>
-<style>
-/* ============ SISTEMA MATEMÁTICO ============
-   Todo se deriva de dos números: --u (unidad base fluida) y --r (razón modular).
-   No hay breakpoints: el layout se reacomoda por mínimos (minmax) y clamp(). */
-:root {
-  --burgundy: #51142A; --gold: #D29B38; --teal: #0A808C;
-  --dark: #22252A; --card: #2B2F36; --text: #E2E8F0; --muted: #9CA3AF;
-
-  --u: clamp(0.875rem, 0.8rem + 0.4vw, 1.0625rem);   /* unidad base: 14px→17px según ancho */
-  --r: 1.25;                                          /* razón modular (tercera mayor) */
-
-  /* Escala tipográfica: u · r^n */
-  --t-1: calc(var(--u) / var(--r));
-  --t0:  var(--u);
-  --t1:  calc(var(--t0) * var(--r));
-  --t2:  calc(var(--t1) * var(--r));
-  --t3:  calc(var(--t2) * var(--r));
-  --t4:  calc(var(--t3) * var(--r));
-  --t5:  calc(var(--t4) * var(--r));
-
-  /* Espaciado: múltiplos de u */
-  --s1: calc(var(--u) * 0.5);
-  --s2: var(--u);
-  --s3: calc(var(--u) * 1.5);
-  --s4: calc(var(--u) * 2);
-  --s5: calc(var(--u) * 3);
-  --s6: calc(var(--u) * 5);
-
-  --measure: 65ch;                                    /* largo de línea estable */
-  --wrap: min(100% - var(--s4), 80rem);               /* contenedor fluido */
-  --radius: calc(var(--u) * 0.75);
-  --line: color-mix(in srgb, var(--gold) 30%, transparent);
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; }
-html { scroll-behavior: smooth; scroll-padding-top: 6rem; }
-body {
-  background: var(--dark); color: var(--text);
-  font: var(--t0) / 1.6 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  -webkit-text-size-adjust: 100%;
-}
-img { display: block; max-width: 100%; height: auto; }
-p { max-width: var(--measure); }
-a { color: inherit; text-decoration: none; }
-:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
-::selection { background: var(--teal); color: #fff; }
-
-h1 { font-size: min(var(--t5), 11vw); overflow-wrap: anywhere; line-height: 1.1; color: #fff; text-wrap: balance; }
-h2 { font-size: var(--t3); line-height: 1.2; color: #fff; text-wrap: balance; }
-h3 { font-size: var(--t1); line-height: 1.3; color: #fff; }
-small, .small { font-size: var(--t-1); }
-
-.wrap { width: var(--wrap); margin-inline: auto; }
-section { padding-block: var(--s5); }
-.stack > * + * { margin-top: var(--s3); }
-.center { text-align: center; }
-.center p { margin-inline: auto; }
-.muted { color: var(--muted); }
-.gold { color: var(--gold); }
-.teal { color: var(--teal); }
-
-/* Un solo patrón de rejilla: tantas columnas como quepan con ancho mínimo --min */
-.fit {
-  --min: 16rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--min)), 1fr));
-  gap: var(--s4);
-}
-.fit.wide { --min: 22rem; align-items: center; }
-.fit.narrow { --min: 13rem; gap: var(--s3); }
-
-/* Superficies */
-.card {
-  background: var(--card); border: 1px solid var(--line);
-  border-radius: var(--radius); padding: var(--s3);
-  transition: border-color .2s;
-}
-.card:hover { border-color: var(--teal); }
-
-.btn {
-  display: block; width: 100%; cursor: pointer; text-align: center;
-  background: var(--burgundy); color: var(--gold);
-  border: 1px solid var(--gold); border-radius: calc(var(--radius) / 2);
-  padding: var(--s1) var(--s2); font: inherit; font-weight: 700; font-size: var(--t-1);
-  transition: background .2s, color .2s;
-}
-.btn:hover { background: var(--gold); color: var(--dark); }
-
-.tag {
-  display: inline-block; background: var(--card); color: var(--gold);
-  border: 1px solid var(--line); border-radius: calc(var(--radius) / 2);
-  padding: calc(var(--s1) / 2) var(--s2); font-size: var(--t-1);
-}
-.tags { display: flex; flex-wrap: wrap; gap: var(--s1); }
-
-/* Header: flex-wrap en vez de menú oculto; se reacomoda solo */
-header {
-  position: relative; z-index: 20;
-  background: color-mix(in srgb, var(--dark) 95%, transparent);
-  backdrop-filter: blur(8px); border-bottom: 1px solid var(--line);
-}
-@media (min-width: 48rem) { header { position: sticky; top: 0; } }
-header .wrap {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
-  gap: var(--s2) var(--s4); padding-block: var(--s2);
-}
-.brand { display: flex; align-items: center; gap: var(--s2); }
-.brand img { height: var(--s5); width: auto; filter: drop-shadow(0 2px 8px rgba(210,155,56,.3)); }
-.brand b { display: block; font-size: var(--t1); color: #fff; letter-spacing: .05em; }
-.brand span { font-size: var(--t-1); color: var(--gold); }
-nav { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s1) var(--s3); font-size: var(--t-1); }
-nav a:hover { color: var(--gold); }
-nav .cta { background: var(--burgundy); color: var(--gold); border: 1px solid var(--line); border-radius: calc(var(--radius) / 2); padding: var(--s1) var(--s2); font-weight: 700; }
-nav .cta:hover { background: var(--gold); color: var(--dark); }
-
-/* Noticias */
-.news { background: color-mix(in srgb, var(--burgundy) 40%, transparent); border-bottom: 1px solid var(--line); padding-block: var(--s1); font-size: var(--t-1); }
-.news { container-type: inline-size; }
-.news .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s1) var(--s2); }
-.news .badge { order: 1; }
-.news button { order: 2; }
-.news #prev { margin-left: auto; }
-.news p { order: 3; flex: 1 1 100%; }
-@container (min-width: 44rem) {
-  .news p { order: 2; flex: 1 1 0; }
-  .news #prev { margin-left: 0; }
-  .news button { order: 3; }
-}
-.news .badge { flex: none; background: var(--gold); color: var(--dark); font-weight: 700; border-radius: 4px; padding: 0 var(--s1); }
-.news p { flex: 1; min-width: 0; max-width: none; transition: opacity .2s; }
-.news button { flex: none; background: none; border: 0; color: var(--gold); font: inherit; font-size: var(--t1); cursor: pointer; padding-inline: var(--s1); }
-.news button:hover { color: #fff; }
-
-/* Hero */
-.shield { background: var(--burgundy); border: 2px solid var(--line); border-radius: calc(var(--radius) * 2); padding: var(--s4); text-align: center; width: min(100%, 24rem); margin-inline: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,.5); }
-.shield img { width: 60%; margin: 0 auto var(--s2); }
-
-/* Bandas */
-.band { background: color-mix(in srgb, var(--dark) 60%, #000); border-block: 1px solid var(--line); }
-.num { display: grid; place-items: center; width: var(--s5); aspect-ratio: 1; background: var(--burgundy); color: var(--gold); border-radius: calc(var(--radius) / 1.5); font-weight: 700; font-size: var(--t2); margin-bottom: var(--s2); }
-
-/* Productos */
-.product { display: flex; flex-direction: column; padding: 0; overflow: hidden; }
-.product .ph { aspect-ratio: 4 / 3; display: grid; place-items: center; background: color-mix(in srgb, var(--burgundy) 80%, transparent); border-bottom: 1px solid var(--line); color: var(--gold); font-weight: 700; padding: var(--s2); text-align: center; }
-.product .body { flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: var(--s3); padding: var(--s3); }
-
-
-/* Container queries: cada tarjeta se adapta al ancho de SU columna, no al de la pantalla */
-.cell { container-type: inline-size; }
-.cell h3 { font-size: clamp(var(--t0), 4cqi + 0.35rem, var(--t2)); }   /* tipo ∝ ancho del contenedor */
-.cell > .card { height: 100%; }
-@container (min-width: 22rem) {
-  .app { display: grid; grid-template-columns: auto 1fr; column-gap: var(--s3); align-items: start; }
-  .app .num { grid-row: span 2; margin: 0; }
-}
-@container (min-width: 20rem) {
-  .product { flex-direction: row; }
-  .product .ph { flex: 0 0 38%; aspect-ratio: auto; border-bottom: 0; border-right: 1px solid var(--line); }
-}
-
-/* Formulario */
-.form { max-width: 48rem; margin-inline: auto; padding: var(--s4); border-radius: calc(var(--radius) * 2); }
-label { display: block; color: var(--gold); font-size: var(--t-1); margin-bottom: var(--s1); }
-input, select, textarea {
-  width: 100%; background: var(--dark); color: #fff; font: inherit;
-  border: 1px solid #374151; border-radius: calc(var(--radius) / 2); padding: var(--s1) var(--s2);
-}
-input:focus, select:focus, textarea:focus { outline: none; border-color: var(--teal); }
-.form form { display: grid; gap: var(--s3); }
-
-/* Consultoría */
-.annex { background: linear-gradient(to right, var(--burgundy), var(--card)); border-left: 4px solid var(--gold); border-radius: 0 calc(var(--radius) * 2) calc(var(--radius) * 2) 0; padding: var(--s4); }
-
-footer { border-top: 1px solid var(--line); padding-block: var(--s4); text-align: center; font-size: var(--t-1); color: #6B7280; }
-footer .brand { justify-content: center; margin-bottom: var(--s2); }
-footer .brand img { height: var(--s4); opacity: .7; }
-
-/* Diálogos nativos */
-dialog { margin: auto; width: min(100% - var(--s4), 28rem); background: var(--card); color: var(--text); border: 1px solid var(--gold); border-radius: var(--radius); padding: var(--s4); }
-dialog::backdrop { background: rgb(0 0 0 / .7); }
-dialog .stack { text-align: left; }
-
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
-</style>
+<link rel="stylesheet" href="base.css">
 </head>
 <body>
 
-<header>
-  <div class="wrap">
-    <div class="brand">
-      <img src="arm.svg" alt="Armadillo Tacticals Logo">
-      <div><b>Armadillo Tacticals</b><span>Ingeniería Táctica Artesanal</span></div>
-    </div>
-    <nav>
-      <a href="#filosofia">Filosofía</a>
-      <a href="#aplicaciones">Aplicaciones</a>
-      <a href="#galeria">Líneas de Producto</a>
-      <a href="#consultoria">Consultoría I+D</a>
-      <a href="#contacto" class="cta">Cotización</a>
-    </nav>
-  </div>
-</header>
+<header></header>
 
 <div class="news">
   <div class="wrap">
@@ -245,7 +48,7 @@ dialog .stack { text-align: left; }
 
 <section id="galeria">
   <div class="wrap">
-    <div class="center"><h2>Líneas de Producto y Prototipos</h2><p class="gold small">Especificaciones técnicas de hardware modular</p></div>
+    <div class="center"><h2>Líneas de Producto y Prototipos</h2><p class="gold small">Especificaciones técnicas de hardware modular</p><p class="small" style="margin-top:var(--s2)"><a class="gold" href="catalogo/">Ver catálogo completo</a></p></div>
     <div class="fit narrow" style="margin-top:var(--s4)" id="products"></div>
   </div>
 </section>
@@ -280,10 +83,7 @@ dialog .stack { text-align: left; }
   </div>
 </section>
 
-<footer>
-  <div class="brand"><img src="arm.svg" alt="Logo"><span class="muted">ARMADILLO TACTICALS</span></div>
-  <p style="margin-inline:auto">&copy; 2026 Armadillo Tacticals. Ingeniería Táctica Artesanal. Todos los derechos reservados.</p>
-</footer>
+<footer></footer>
 
 <dialog id="product-modal">
   <div class="stack">
@@ -302,6 +102,7 @@ dialog .stack { text-align: left; }
   </div>
 </dialog>
 
+<script src="site.js"></script>
 <script>
 // Datos en un solo lugar: el HTML de productos se genera a partir de aquí
 const news = [
@@ -309,13 +110,7 @@ const news = [
   "Nuevo prototipo de chasis modular probado en condiciones extremas de fricción y torsión.",
   "Consultoría I+D: Alianzas estratégicas para el desarrollo de equipo ergonómico industrial certificado."
 ];
-const products = [
-  ["ALPHA", "Chasis Modular MK-I", "Cuero vacuno, Aluminio 6061", "Estructura base de soporte ergonómico para distribución de peso en largas jornadas operativas.", "Cuero vacuno de 4mm, herrajes de aluminio anodizado 6061 y remaches de acero inoxidable.", "Diseñado para mitigar la fatiga lumbar mediante transferencia biomecánica de carga al tren inferior."],
-  ["BETA", "Arnés de Carga Táctica", "Cordura balística, Cuero, Acero", "Sistema de anclaje rápido con paneles modulares intercambiables para herramientas y accesorios.", "Cordura de alta tenacidad, refuerzos de cuero vacuno curtido al vegetal y hebillas de acero estructural.", "Estructura simétrica optimizada para libertad total de movimiento en hombros y brazos."],
-  ["GAMMA", "Portaherramientas Industrial", "Cuero grueso, Remaches de acero", "Cartuchera reforzada para herramientas de precisión, diseñada para resistir fricción y desgaste extremo.", "Cuero vacuno graneado de alta densidad y costuras de hilo de alta resistencia encerado.", "Especialmente construido para técnicos en mantenimiento y reparación de maquinaria pesada."],
-  ["DELTA", "Kit de Integración Cruzada", "Aluminio, Acero inoxidable", "Adaptadores universales y conectores modulares para acoplar equipos de diferentes normativas.", "Placas de aluminio mecanizadas por CNC y tornillería de acero inoxidable.", "Permite compatibilidad total entre plataformas tácticas y de trabajo industrial pesado."]
-];
-const $ = id => document.getElementById(id);
+let products = [];
 
 // Carrusel: módulo aritmético, un solo temporizador que se reinicia al interactuar
 let i = 0, timer;
@@ -338,7 +133,7 @@ text.textContent = news[0];
 timer = setInterval(() => show(i + 1), 6000);
 
 // Productos
-$("products").innerHTML = products.map(([k, name, mats, short], n) => `
+const render = () => $("products").innerHTML = products.map(([k, name, mats, short], n) => `
   <div class="cell"><article class="card product">
     <div class="ph">[ PROTOTIPO ${k} ]</div>
     <div class="body">
@@ -346,6 +141,10 @@ $("products").innerHTML = products.map(([k, name, mats, short], n) => `
       <button class="btn" type="button" data-i="${n}">Ver Detalles</button>
     </div>
   </article></div>`).join("");
+fetch("datos/productos.json").then(r => r.json()).then(d => {
+  products = d.map(p => [p.codigo, p.nombre, p.materiales, p.resumen, p.materiales_detalle, p.uso]);
+  render();
+});
 $("products").addEventListener("click", e => {
   const b = e.target.closest("[data-i]"); if (!b) return;
   const [, name, , , mat, desc] = products[b.dataset.i];
