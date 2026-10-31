@@ -6,7 +6,7 @@ let rootFolderId = null;
 // Inicialización de Google Identity Services
 function gapiLoaded() {
     tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: 'TU_CLIENT_ID_DE_GOOGLE.apps.googleusercontent.com', // Reemplaza con tu Client ID real
+        client_id: '204897054903-31sic194b698ia0q5s7tjn1loptppo56.apps.googleusercontent.com', // Reemplaza con tu Client ID real
         scope: 'https://www.googleapis.com/auth/drive.file',
         callback: async (resp) => {
             if (resp.error !== undefined) {
