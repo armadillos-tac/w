@@ -171,7 +171,6 @@ $("quote").addEventListener("submit", async e => {
   const materiales = $("m").value.trim();
   const descripcion = $("d").value.trim();
   
-  // Pega aquí la URL que copiaste de Discord:
   const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1566010118636703754/xHLH4OodmNXxVGxqA8PfpE9nccsIQtv_8EEhRU9jZ6SRReasiSdaR1fV_-jvHapIHJzX";
 
   const payload = {
@@ -191,15 +190,17 @@ $("quote").addEventListener("submit", async e => {
   };
 
   try {
-    if (!DISCORD_WEBHOOK_URL.includes("https://discord.com/api/webhooks/1566010118636703754/xHLH4OodmNXxVGxqA8PfpE9nccsIQtv_8EEhRU9jZ6SRReasiSdaR1fV_-jvHapIHJzX")) {
-      await fetch(DISCORD_WEBHOOK_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
+    const response = await fetch(DISCORD_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      console.error("Error al enviar a Discord:", response.status, await response.text());
     }
   } catch (err) {
-    console.error("Error al enviar a Discord:", err);
+    console.error("Error de red al conectar con Discord:", err);
   }
 
   $("ok-modal").showModal();
