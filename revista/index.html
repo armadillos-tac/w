@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Revista | Armadillo Tacticals</title>
+<link rel="stylesheet" href="../base.css">
+</head>
+<body data-root="../">
+<header></header>
+<main class="wrap">
+  <div class="stack">
+    <h1 style="font-size:var(--t4)">Revista</h1>
+    <p class="muted">Guías de uso, materiales y notas de ergonomía del taller.</p>
+    <div class="tags" id="chips"></div>
+  </div>
+  <div class="fit" id="list" style="--min:18rem;margin-top:var(--s4)"></div>
+</main>
+<footer></footer>
+<script src="../site.js"></script>
+<script>
+fetch("../datos/articulos.json").then(r => r.json()).then(all => {
+  const data = all.sort((a, b) => b.fecha.localeCompare(a.fecha));
+  const cats = ["Todas", ...new Set(data.map(a => a.categoria))];
+  let sel = "Todas";
+  const draw = () => {
+    $("chips").innerHTML = cats.map(c => `<button class="chip" type="button" aria-pressed="${c === sel}" data-c="${esc(c)}">${esc(c)}</button>`).join("");
+    $("list").innerHTML = data.filter(a => sel === "Todas" || a.categoria === sel).map((a, i) => `
+      <article class="card post stack${i === 0 && sel === "Todas" ? " feat" : ""}">
+        <small class="gold">${esc(a.categoria)} · ${fechaLarga(a)}</small>
+        <h3><a href="articulo.html?a=${encodeURIComponent(a.slug)}">${esc(a.titulo)}</a></h3>
+        <p class="muted small">${esc(a.resumen)}</p>
+        <small class="muted">${lectura(a)} min de lectura</small>
+      </article>`).join("");
+  };
+  $("chips").addEventListener("click", e => { const b = e.target.closest("[data-c]"); if (b) { sel = b.dataset.c; draw(); } });
+  draw();
+});
+</script>
+</body>
+</html>
