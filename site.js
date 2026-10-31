@@ -18,3 +18,4 @@ document.querySelectorAll("dialog").forEach(d => d.addEventListener("click", e =
   const fuera = e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
   if (fuera || e.target.hasAttribute("data-close")) d.close();
 }));
+const cuerpoHTML = a => a.cuerpo.map(b => typeof b === "string" ? `<p>${esc(b)}</p>` : b.h ? `<h2>${esc(b.h)}</h2>` : `<ul>${b.lista.map(i => `<li>${esc(i)}</li>`).join("")}</ul>`).join("");
