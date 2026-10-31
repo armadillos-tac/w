@@ -32,10 +32,44 @@
 
         <!-- Contenedor dinámico de módulos -->
         <section id="app-workspace">
-            <!-- Módulo Taller -->
+            <!-- Módulo Taller y Proyectos -->
             <div id="tab-taller" class="tab-content" style="display:none;">
                 <h2>Gestión de Taller y Proyectos</h2>
-                <p>Aquí se gestionarán los planos, notas, materiales y tareas de herrería.</p>
+                <p>Registro de planos, componentes, herramientas y especificaciones de fabricación.</p>
+
+                <form id="proyecto-form" onsubmit="saveProyecto(event)" style="margin-top: 1.5rem;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <label for="proj-id">ID / Código de Proyecto:</label>
+                            <input type="text" id="proj-id" required placeholder="ej. armadillo-mod-01" style="width: 100%; padding: 0.5rem; margin-top: 0.3rem;">
+                        </div>
+                        <div>
+                            <label for="proj-estado">Estado:</label>
+                            <select id="proj-estado" style="width: 100%; padding: 0.5rem; margin-top: 0.3rem;">
+                                <option value="diseno">Diseño / Planos</option>
+                                <option value="en-proceso">En Proceso / Taller</option>
+                                <option value="completado">Completado</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label for="proj-nombre">Nombre del Proyecto o Pieza:</label>
+                        <input type="text" id="proj-nombre" required placeholder="Ej. Soporte modular para equipo táctico" style="width: 100%; padding: 0.5rem; margin-top: 0.3rem;">
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label for="proj-materiales">Materiales y Perfiles:</label>
+                        <input type="text" id="proj-materiales" placeholder="Ej. Acero al carbón 1/8", soladura MIG, electrodo" style="width: 100%; padding: 0.5rem; margin-top: 0.3rem;">
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label for="proj-especificaciones">Especificaciones Técnicas / Medidas:</label>
+                        <textarea id="proj-especificaciones" rows="3" placeholder="Cortes, tolerancias, ángulos o parámetros de ajuste..." style="width: 100%; padding: 0.5rem; margin-top: 0.3rem;"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn">Guardar Proyecto en Drive (.md)</button>
+                </form>
             </div>
 
             <!-- Módulo Entrenamiento -->
@@ -225,7 +259,7 @@
             document.getElementById('carga-total').innerText = min * int;
         }
 
-        // Guardar archivo Markdown en Drive
+        // Guardar Plan Semanal en Drive
         async function savePlan(event) {
             event.preventDefault();
 
@@ -263,6 +297,39 @@ ${notas}
             await saveMarkdownFile('planes', fileName, markdownContent);
         }
 
+        // Guardar Proyecto de Taller en Drive
+        async function saveProyecto(event) {
+            event.preventDefault();
+
+            const id = document.getElementById('proj-id').value.trim();
+            const estado = document.getElementById('proj-estado').value;
+            const nombre = document.getElementById('proj-nombre').value;
+            const materiales = document.getElementById('proj-materiales').value;
+            const especificaciones = document.getElementById('proj-especificaciones').value;
+            const fechaActual = new Date().toISOString().split('T')[0];
+
+            const markdownContent = `---
+tipo: proyecto
+id: ${id}
+estado: ${estado}
+date: ${fechaActual}
+---
+
+# Proyecto: ${nombre}
+
+- **ID:** ${id}
+- **Estado:** ${estado}
+- **Materiales:** ${materiales}
+
+## Especificaciones Técnicas
+${especificaciones}
+`;
+
+            const fileName = `${id}.md`;
+            await saveMarkdownFile('proyectos', fileName, markdownContent);
+        }
+
+        // Función genérica para subir archivos Markdown a una subcarpeta de Drive
         async function saveMarkdownFile(subfolderName, fileName, markdownContent) {
             if (!rootFolderId || !accessToken) {
                 alert("No estás conectado a Google Drive o no se ha inicializado la carpeta raíz.");
@@ -298,7 +365,7 @@ ${notas}
 
                 if (uploadResponse.ok) {
                     console.log(`Archivo ${fileName} guardado correctamente en ${subfolderName}.`);
-                    alert("Guardado exitosamente en Google Drive.");
+                    alert("Proyecto guardado exitosamente en Google Drive.");
                 } else {
                     console.error("Error al subir archivo:", await uploadResponse.text());
                     alert("Error al guardar en Google Drive.");
