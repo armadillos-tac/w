@@ -1,149 +1,319 @@
-// Variables globales para la sesión de Drive
-let tokenClient;
-let accessToken = null;
-let rootFolderId = null;
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centro de Control - Armadillo Tacticals</title>
+    <link rel="stylesheet" href="../base.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <header id="site-header"></header>
 
-// Inicialización de Google Identity Services
-function gapiLoaded() {
-    tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: '204897054903-31sic194b698ia0q5s7tjn1loptppo56.apps.googleusercontent.com', // Reemplaza con tu Client ID real
-        scope: 'https://www.googleapis.com/auth/drive.file',
-        callback: async (resp) => {
-            if (resp.error !== undefined) {
-                console.error("Error de autenticación:", resp);
+    <main class="container" style="padding: 2rem 1rem; max-width: 900px; margin: 0 auto;">
+        <h1>Centro de Control & Gestión</h1>
+        <p>Sistema operativo de taller, calidad, seguridad y entrenamiento basado en Markdown y Google Drive.</p>
+
+        <!-- Barra de Estado de Drive / Autenticación -->
+        <section class="card auth-card" style="margin-bottom: 2rem; padding: 1.5rem; border: 1px solid var(--border, #ccc); border-radius: 8px;">
+            <h3>Estado de Conexión</h3>
+            <p id="drive-status" style="margin: 0.5rem 0 1rem 0;">Desconectado de Google Drive.</p>
+            <button id="btn-auth" class="btn" onclick="handleAuthClick()">Conectar con Google Drive</button>
+            <button id="btn-signout" class="btn" onclick="handleSignoutClick()" style="display:none;">Desconectar</button>
+        </section>
+
+        <!-- Navegación interna del Centro -->
+        <nav class="center-nav" style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+            <button class="btn" onclick="switchTab('taller')">Taller & Proyectos</button>
+            <button class="btn" onclick="switchTab('entrenamiento')">Entrenamiento</button>
+            <button class="btn" onclick="switchTab('foda')">FODA</button>
+            <button class="btn" onclick="switchTab('semanal')">Plan Semanal</button>
+        </nav>
+
+        <!-- Contenedor dinámico de módulos -->
+        <section id="app-workspace">
+            <!-- Módulo Taller -->
+            <div id="tab-taller" class="tab-content" style="display:none;">
+                <h2>Gestión de Taller y Proyectos</h2>
+                <p>Aquí se gestionarán los planos, notas, materiales y tareas de herrería.</p>
+            </div>
+
+            <!-- Módulo Entrenamiento -->
+            <div id="tab-entrenamiento" class="tab-content" style="display:none;">
+                <h2>Control de Entrenamiento y Microciclos</h2>
+                <p>Registro de series, repeticiones, cargas y cálculo de sRPE.</p>
+            </div>
+
+            <!-- Módulo FODA -->
+            <div id="tab-foda" class="tab-content" style="display:none;">
+                <h2>Matriz FODA</h2>
+                <p>Análisis estratégico vinculado a proyectos.</p>
+            </div>
+
+            <!-- Módulo Plan Semanal -->
+            <div id="tab-semanal" class="tab-content">
+                <h2>Plan Semanal de Actividad & Taller</h2>
+                <p>Distribución de bloques diarios. La carga se calcula automáticamente como <em>minutos × intensidad</em>.</p>
+
+                <form id="plan-form" onsubmit="savePlan(event)" style="margin-top: 1.5rem;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <label for="plan-id">ID / Título del Plan:</label>
+                            <input type="text" id="plan-id" required placeholder="ej. semana-2026-44" style="width: 100%; padding: 0.5rem; margin-top: 0.3rem;">
+                        </div>
+                        <div>
+                            <label for="plan-dia">Día:</label>
+                            <select id="plan-dia" style="width: 100%; padding: 0.5rem; margin-top: 0.3rem;">
+                                <option value="lunes">Lunes</option>
+                                <option value="martes">Martes</option>
+                                <option value="miercoles">Miércoles</option>
+                                <option value="jueves">Jueves</option>
+                                <option value="viernes">Viernes</option>
+                                <option value="sabado">Sábado</option>
+                                <option value="domingo">Domingo</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="plan-minutos">Minutos:</label>
+                            <input type="number" id="plan-minutos" value="60" min="1" style="width: 100%; padding: 0.5rem; margin-top: 0.3rem;" oninput="calcularCarga()">
+                        </div>
+                        <div>
+                            <label for="plan-intensidad">Intensidad (1-10):</label>
+                            <input type="number" id="plan-intensidad" value="5" min="1" max="10" style="width: 100%; padding: 0.5rem; margin-top: 0.3rem;" oninput="calcularCarga()">
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label for="plan-objetivo">Objetivo / Tarea:</label>
+                        <input type="text" id="plan-objetivo" required placeholder="Ej. Soldadura de chasis / Sesión técnica" style="width: 100%; padding: 0.5rem; margin-top: 0.3rem;">
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label for="plan-materiales">Materiales / Recursos:</label>
+                        <input type="text" id="plan-materiales" placeholder="Ej. Electrodo 6013, acero estructural" style="width: 100%; padding: 0.5rem; margin-top: 0.3rem;">
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label for="plan-notas">Notas / Observaciones:</label>
+                        <textarea id="plan-notas" rows="3" placeholder="Detalles o parámetros de seguridad a tener en cuenta..." style="width: 100%; padding: 0.5rem; margin-top: 0.3rem;"></textarea>
+                    </div>
+
+                    <div style="margin-bottom: 1.5rem; font-weight: bold; font-size: 1.1rem;">
+                        Carga calculada: <span id="carga-total">300</span> (Minutos × Intensidad)
+                    </div>
+
+                    <button type="submit" class="btn">Guardar Bloque en Plan (.md)</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer id="site-footer"></footer>
+
+    <script src="../site.js"></script>
+    <script>
+        // Navegación entre pestañas
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+            const target = document.getElementById(`tab-${tabName}`);
+            if (target) target.style.display = 'block';
+        }
+
+        // Variables globales para la sesión de Drive
+        let tokenClient;
+        let accessToken = null;
+        let rootFolderId = null;
+
+        // Inicialización de Google Identity Services
+        function gapiLoaded() {
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: '204897054903-31sic194b698ia0q5s7tjn1loptppo56.apps.googleusercontent.com',
+                scope: 'https://www.googleapis.com/auth/drive.file',
+                callback: async (resp) => {
+                    if (resp.error !== undefined) {
+                        console.error("Error de autenticación:", resp);
+                        return;
+                    }
+                    accessToken = resp.access_token;
+                    document.getElementById('drive-status').innerText = 'Conectado a Google Drive. Verificando estructura...';
+                    document.getElementById('btn-auth').style.display = 'none';
+                    document.getElementById('btn-signout').style.display = 'inline-block';
+                    
+                    await initializeDriveStructure();
+                },
+            });
+        }
+
+        function handleAuthClick() {
+            if (tokenClient) {
+                tokenClient.requestAccessToken({ prompt: 'consent' });
+            }
+        }
+
+        function handleSignoutClick() {
+            if (accessToken) {
+                google.accounts.oauth2.revoke(accessToken, () => {
+                    accessToken = null;
+                    rootFolderId = null;
+                    document.getElementById('drive-status').innerText = 'Desconectado de Google Drive.';
+                    document.getElementById('btn-auth').style.display = 'inline-block';
+                    document.getElementById('btn-signout').style.display = 'none';
+                });
+            }
+        }
+
+        // Buscar o crear la carpeta raíz "Armadillo Centro"
+        async function initializeDriveStructure() {
+            try {
+                const query = "name = 'Armadillo Centro' and mimeType = 'application/vnd.google-apps.folder' and trashed = false";
+                const response = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}`, {
+                    headers: { Authorization: `Bearer ${accessToken}` }
+                });
+                const data = await response.json();
+
+                if (data.files && data.files.length > 0) {
+                    rootFolderId = data.files[0].id;
+                    document.getElementById('drive-status').innerText = 'Conectado. Carpeta "Armadillo Centro" localizada.';
+                } else {
+                    const folderMetadata = {
+                        name: 'Armadillo Centro',
+                        mimeType: 'application/vnd.google-apps.folder'
+                    };
+                    const createResponse = await fetch('https://www.googleapis.com/drive/v3/files', {
+                        method: 'POST',
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(folderMetadata)
+                    });
+                    const folder = await createResponse.json();
+                    rootFolderId = folder.id;
+                    
+                    await createSubFolders(rootFolderId);
+                    document.getElementById('drive-status').innerText = 'Conectado. Carpeta "Armadillo Centro" creada con éxito.';
+                }
+            } catch (error) {
+                console.error("Error al inicializar la estructura en Drive:", error);
+                document.getElementById('drive-status').innerText = 'Error al sincronizar carpetas en Drive.';
+            }
+        }
+
+        async function createSubFolders(parentId) {
+            const subfolders = ['proyectos', 'planes', 'analisis', 'adjuntos'];
+            for (const name of subfolders) {
+                const metadata = {
+                    name: name,
+                    mimeType: 'application/vnd.google-apps.folder',
+                    parents: [parentId]
+                };
+                await fetch('https://www.googleapis.com/drive/v3/files', {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(metadata)
+                });
+            }
+        }
+
+        // Cálculo dinámico de carga
+        function calcularCarga() {
+            const min = parseInt(document.getElementById('plan-minutos').value) || 0;
+            const int = parseInt(document.getElementById('plan-intensidad').value) || 0;
+            document.getElementById('carga-total').innerText = min * int;
+        }
+
+        // Guardar archivo Markdown en Drive
+        async function savePlan(event) {
+            event.preventDefault();
+
+            const id = document.getElementById('plan-id').value.trim();
+            const dia = document.getElementById('plan-dia').value;
+            const minutos = document.getElementById('plan-minutos').value;
+            const intensidad = document.getElementById('plan-intensidad').value;
+            const carga = minutos * intensidad;
+            const objetivo = document.getElementById('plan-objetivo').value;
+            const materiales = document.getElementById('plan-materiales').value;
+            const notas = document.getElementById('plan-notas').value;
+            const fechaActual = new Date().toISOString().split('T')[0];
+
+            const markdownContent = `---
+tipo: plan
+id: ${id}
+dia: ${dia}
+date: ${fechaActual}
+status: pendiente
+---
+
+# Plan Diario: ${objetivo}
+
+- **Día:** ${dia}
+- **Minutos:** ${minutos}
+- **Intensidad:** ${intensidad}
+- **Carga Total:** ${carga}
+- **Materiales:** ${materiales}
+
+## Notas
+${notas}
+`;
+
+            const fileName = `${id}-${dia}.md`;
+            await saveMarkdownFile('planes', fileName, markdownContent);
+        }
+
+        async function saveMarkdownFile(subfolderName, fileName, markdownContent) {
+            if (!rootFolderId || !accessToken) {
+                alert("No estás conectado a Google Drive o no se ha inicializado la carpeta raíz.");
                 return;
             }
-            accessToken = resp.access_token;
-            document.getElementById('drive-status').innerText = 'Conectado a Google Drive. Verificando estructura...';
-            document.getElementById('btn-auth').style.display = 'none';
-            document.getElementById('btn-signout').style.display = 'inline-block';
-            
-            // Inicializar la carpeta raíz al conectar
-            await initializeDriveStructure();
-        },
-    });
-}
 
-function handleAuthClick() {
-    if (tokenClient) {
-        tokenClient.requestAccessToken({ prompt: 'consent' });
-    }
-}
+            try {
+                const query = `'${rootFolderId}' in parents and name = '${subfolderName}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`;
+                const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}`, {
+                    headers: { Authorization: `Bearer ${accessToken}` }
+                });
+                const data = await res.json();
+                
+                if (!data.files || data.files.length === 0) {
+                    throw new Error(`Subcarpeta ${subfolderName} no encontrada.`);
+                }
+                const subfolderId = data.files[0].id;
 
-function handleSignoutClick() {
-    if (accessToken) {
-        google.accounts.oauth2.revoke(accessToken, () => {
-            accessToken = null;
-            rootFolderId = null;
-            document.getElementById('drive-status').innerText = 'Desconectado de Google Drive.';
-            document.getElementById('btn-auth').style.display = 'inline-block';
-            document.getElementById('btn-signout').style.display = 'none';
-        });
-    }
-}
+                const metadata = {
+                    name: fileName,
+                    parents: [subfolderId]
+                };
 
-// Buscar o crear la carpeta raíz "Armadillo Centro"
-async function initializeDriveStructure() {
-    try {
-        // 1. Buscar si ya existe la carpeta raíz
-        const query = "name = 'Armadillo Centro' and mimeType = 'application/vnd.google-apps.folder' and trashed = false";
-        const response = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}`, {
-            headers: { Authorization: `Bearer ${accessToken}` }
-        });
-        const data = await response.json();
+                const form = new FormData();
+                form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+                form.append('file', new Blob([markdownContent], { type: 'text/markdown' }));
 
-        if (data.files && data.files.length > 0) {
-            rootFolderId = data.files[0].id;
-            document.getElementById('drive-status').innerText = 'Conectado. Carpeta "Armadillo Centro" localizada.';
-        } else {
-            // 2. Si no existe, crear la carpeta raíz
-            const folderMetadata = {
-                name: 'Armadillo Centro',
-                mimeType: 'application/vnd.google-apps.folder'
-            };
-            const createResponse = await fetch('https://www.googleapis.com/drive/v3/files', {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(folderMetadata)
-            });
-            const folder = await createResponse.json();
-            rootFolderId = folder.id;
-            
-            // Crear subcarpetas esenciales (proyectos, planes, analisis, adjuntos)
-            await createSubFolders(rootFolderId);
-            document.getElementById('drive-status').innerText = 'Conectado. Carpeta "Armadillo Centro" creada con éxito.';
+                const uploadResponse = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                    method: 'POST',
+                    headers: { Authorization: `Bearer ${accessToken}` },
+                    body: form
+                });
+
+                if (uploadResponse.ok) {
+                    console.log(`Archivo ${fileName} guardado correctamente en ${subfolderName}.`);
+                    alert("Guardado exitosamente en Google Drive.");
+                } else {
+                    console.error("Error al subir archivo:", await uploadResponse.text());
+                    alert("Error al guardar en Google Drive.");
+                }
+            } catch (error) {
+                console.error("Error en la operación de guardado:", error);
+                alert("Error de red o permisos al guardar.");
+            }
         }
-    } catch (error) {
-        console.error("Error al inicializar la estructura en Drive:", error);
-        document.getElementById('drive-status').innerText = 'Error al sincronizar carpetas en Drive.';
-    }
-}
 
-async function createSubFolders(parentId) {
-    const subfolders = ['proyectos', 'planes', 'analisis', 'adjuntos'];
-    for (const name of subfolders) {
-        const metadata = {
-            name: name,
-            mimeType: 'application/vnd.google-apps.folder',
-            parents: [parentId]
+        window.onload = () => {
+            if (typeof google !== 'undefined') {
+                gapiLoaded();
+            }
         };
-        await fetch('https://www.googleapis.com/drive/v3/files', {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(metadata)
-        });
-    }
-}
-
-// Función para guardar un archivo Markdown con Frontmatter en Drive
-async function saveMarkdownFile(subfolderName, fileName, markdownContent) {
-    if (!rootFolderId || !accessToken) {
-        alert("No estás conectado a Google Drive o no se ha inicializado la carpeta raíz.");
-        return;
-    }
-
-    try {
-        // Buscar ID de la subcarpeta (ej. 'planes' o 'proyectos')
-        const query = `'${rootFolderId}' in parents and name = '${subfolderName}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`;
-        const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}`, {
-            headers: { Authorization: `Bearer ${accessToken}` }
-        });
-        const data = await res.json();
-        
-        if (!data.files || data.files.length === 0) {
-            throw new Error(`Subcarpeta ${subfolderName} no encontrada.`);
-        }
-        const subfolderId = data.files[0].id;
-
-        // Subir el archivo como texto plano (.md)
-        const metadata = {
-            name: fileName,
-            parents: [subfolderId]
-        };
-
-        const form = new FormData();
-        form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-        form.append('file', new Blob([markdownContent], { type: 'text/markdown' }));
-
-        const uploadResponse = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${accessToken}` },
-            body: form
-        });
-
-        if (uploadResponse.ok) {
-            console.log(`Archivo ${fileName} guardado correctamente en ${subfolderName}.`);
-            alert("Guardado exitosamente en Google Drive.");
-        } else {
-            console.error("Error al subir archivo:", await uploadResponse.text());
-        }
-    } catch (error) {
-        console.error("Error en la operación de guardado:", error);
-    }
-}
+    </script>
+</body>
+</html>
