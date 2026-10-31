@@ -1,0 +1,50 @@
+[
+  {
+    "id": "alpha",
+    "codigo": "ALPHA",
+    "nombre": "Chasis Modular MK-I",
+    "categoria": "Chasis",
+    "materiales": "Cuero vacuno, Aluminio 6061",
+    "resumen": "Estructura base de soporte ergonómico para distribución de peso en largas jornadas operativas.",
+    "materiales_detalle": "Cuero vacuno de 4mm, herrajes de aluminio anodizado 6061 y remaches de acero inoxidable.",
+    "uso": "Diseñado para mitigar la fatiga lumbar mediante transferencia biomecánica de carga al tren inferior.",
+    "precio": null,
+    "imagen": null
+  },
+  {
+    "id": "beta",
+    "codigo": "BETA",
+    "nombre": "Arnés de Carga Táctica",
+    "categoria": "Arneses",
+    "materiales": "Cordura balística, Cuero, Acero",
+    "resumen": "Sistema de anclaje rápido con paneles modulares intercambiables para herramientas y accesorios.",
+    "materiales_detalle": "Cordura de alta tenacidad, refuerzos de cuero vacuno curtido al vegetal y hebillas de acero estructural.",
+    "uso": "Estructura simétrica optimizada para libertad total de movimiento en hombros y brazos.",
+    "precio": null,
+    "imagen": null
+  },
+  {
+    "id": "gamma",
+    "codigo": "GAMMA",
+    "nombre": "Portaherramientas Industrial",
+    "categoria": "Herramientas",
+    "materiales": "Cuero grueso, Remaches de acero",
+    "resumen": "Cartuchera reforzada para herramientas de precisión, diseñada para resistir fricción y desgaste extremo.",
+    "materiales_detalle": "Cuero vacuno graneado de alta densidad y costuras de hilo de alta resistencia encerado.",
+    "uso": "Especialmente construido para técnicos en mantenimiento y reparación de maquinaria pesada.",
+    "precio": null,
+    "imagen": null
+  },
+  {
+    "id": "delta",
+    "codigo": "DELTA",
+    "nombre": "Kit de Integración Cruzada",
+    "categoria": "Integración",
+    "materiales": "Aluminio, Acero inoxidable",
+    "resumen": "Adaptadores universales y conectores modulares para acoplar equipos de diferentes normativas.",
+    "materiales_detalle": "Placas de aluminio mecanizadas por CNC y tornillería de acero inoxidable.",
+    "uso": "Permite compatibilidad total entre plataformas tácticas y de trabajo industrial pesado.",
+    "precio": null,
+    "imagen": null
+  }
+]
