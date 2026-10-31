@@ -1,0 +1,70 @@
+[
+  {
+    "slug": "ajustar-un-arnes-de-carga",
+    "titulo": "Cómo ajustar un arnés de carga para repartir mejor el peso",
+    "fecha": "2026-10-28",
+    "categoria": "Guías",
+    "resumen": "Cuatro pasos para que la carga trabaje con tu cuerpo y no contra él.",
+    "cuerpo": [
+      "Un arnés bien ajustado se nota al final del día, no al principio. La meta es que el peso se reparta entre hombros, cadera y torso, sin concentrarse en un solo punto.",
+      {
+        "h": "Antes de empezar"
+      },
+      "Vacía el arnés y ajústalo primero sin carga. Parte de una posición neutra: hombros relajados y espalda recta.",
+      {
+        "h": "Los cuatro pasos"
+      },
+      {
+        "lista": [
+          "Ajusta la altura para que las correas no presionen el cuello ni caigan sobre los brazos.",
+          "Aprieta las correas inferiores hasta que el arnés quede estable, sin comprimir el pecho.",
+          "Coloca los elementos más pesados cerca del centro del cuerpo.",
+          "Camina un par de minutos con la carga real y reajusta lo que moleste."
+        ]
+      },
+      {
+        "h": "Cuándo reajustar"
+      },
+      "Si notas hormigueo, presión localizada o que el arnés se desplaza al agacharte, vuelve al primer paso. Un ajuste correcto no debería requerir pensar en él."
+    ]
+  },
+  {
+    "slug": "cuero-curtido-al-vegetal",
+    "titulo": "Cuero curtido al vegetal: qué esperar con el tiempo",
+    "fecha": "2026-10-20",
+    "categoria": "Materiales",
+    "resumen": "Por qué cambia de color, cómo cuidarlo y qué lo daña.",
+    "cuerpo": [
+      "El cuero curtido al vegetal cambia con el uso. Con la luz, el contacto con las manos y los aceites naturales de la piel, se oscurece poco a poco y desarrolla una pátina propia.",
+      {
+        "h": "Cuidados básicos"
+      },
+      {
+        "lista": [
+          "Límpialo con un paño seco o apenas húmedo.",
+          "Aplica acondicionador con moderación, solo cuando se vea reseco.",
+          "Sécalo a temperatura ambiente si se moja; nunca cerca de una fuente de calor."
+        ]
+      },
+      "El exceso de humedad y el calor directo son sus principales enemigos. Con cuidado razonable, una pieza bien hecha puede durar muchos años."
+    ]
+  },
+  {
+    "slug": "aluminio-6061-en-herrajes",
+    "titulo": "Por qué usamos aluminio 6061 en herrajes modulares",
+    "fecha": "2026-10-12",
+    "categoria": "Materiales",
+    "resumen": "Ligereza, maquinado y resistencia a la corrosión, y dónde sí conviene el acero.",
+    "cuerpo": [
+      "El aluminio 6061 es una aleación muy usada en piezas mecanizadas porque combina poco peso, buena resistencia a la corrosión y facilidad de maquinado.",
+      {
+        "h": "Cuándo conviene"
+      },
+      "En herrajes que se llevan encima todo el día, cada gramo cuenta. El anodizado además mejora el acabado y la resistencia al desgaste superficial.",
+      {
+        "h": "Cuándo preferimos acero"
+      },
+      "En puntos sometidos a cargas repetidas o a impactos fuertes, el acero ofrece más margen. Por eso combinamos ambos materiales según la función de cada pieza."
+    ]
+  }
+]
