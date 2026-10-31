@@ -26,7 +26,7 @@
         <nav class="center-nav" style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
             <button class="btn" onclick="switchTab('taller')">Taller & Proyectos</button>
             <button class="btn" onclick="switchTab('entrenamiento')">Entrenamiento</button>
-            <button class="btn" onclick="switchTab('foda')">FODA</button>
+            <button class="btn" onclick="switchTab('foda')">FODA (Offline)</button>
             <button class="btn" onclick="switchTab('semanal')">Plan Semanal</button>
         </nav>
 
@@ -60,7 +60,7 @@
 
                     <div style="margin-bottom: 1rem;">
                         <label for="proj-materiales">Materiales y Perfiles:</label>
-                        <input type="text" id="proj-materiales" placeholder="Ej. Acero al carbón 1/8", soladura MIG, electrodo" style="width: 100%; padding: 0.5rem; margin-top: 0.3rem;">
+                        <input type="text" id="proj-materiales" placeholder="Ej. Acero al carbón 1/8, soldadura MIG" style="width: 100%; padding: 0.5rem; margin-top: 0.3rem;">
                     </div>
 
                     <div style="margin-bottom: 1rem;">
@@ -75,13 +75,53 @@
             <!-- Módulo Entrenamiento -->
             <div id="tab-entrenamiento" class="tab-content" style="display:none;">
                 <h2>Control de Entrenamiento y Microciclos</h2>
-                <p>Registro de series, repeticiones, cargas y cálculo de sRPE.</p>
+                <p>Registro de sesiones físicas, agilidad, flexibilidad o cargas técnicas.</p>
+
+                <form id="entreno-form" onsubmit="saveEntrenamiento(event)" style="margin-top: 1.5rem;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <label for="entreno-id">ID de Sesión:</label>
+                            <input type="text" id="entreno-id" required placeholder="ej. sesion-2026-01" style="width: 100%; padding: 0.5rem; margin-top: 0.3rem;">
+                        </div>
+                        <div>
+                            <label for="entreno-tipo">Enfoque:</label>
+                            <select id="entreno-tipo" style="width: 100%; padding: 0.5rem; margin-top: 0.3rem;">
+                                <option value="gimnasia-movilidad">Gimnasia / Movilidad</option>
+                                <option value="fuerza">Fuerza / Resistencia</option>
+                                <option value="tecnica">Técnica Pura</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="entreno-minutos">Minutos:</label>
+                            <input type="number" id="entreno-minutos" value="45" min="1" style="width: 100%; padding: 0.5rem; margin-top: 0.3rem;">
+                        </div>
+                        <div>
+                            <label for="entreno-rpe">RPE (1-10):</label>
+                            <input type="number" id="entreno-rpe" value="7" min="1" max="10" style="width: 100%; padding: 0.5rem; margin-top: 0.3rem;">
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label for="entreno-enfoque">Detalle de la Sesión:</label>
+                        <input type="text" id="entreno-enfoque" required placeholder="Ej. Trabajo de suelo, flexibilidad de cadena posterior" style="width: 100%; padding: 0.5rem; margin-top: 0.3rem;">
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label for="entreno-notas">Registro de Sensaciones / Observaciones:</label>
+                        <textarea id="entreno-notas" rows="3" placeholder="Fluidez, rangos de movimiento, fatiga..." style="width: 100%; padding: 0.5rem; margin-top: 0.3rem;"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn">Guardar Entrenamiento en Drive (.md)</button>
+                </form>
             </div>
 
             <!-- Módulo FODA -->
             <div id="tab-foda" class="tab-content" style="display:none;">
-                <h2>Matriz FODA</h2>
-                <p>Análisis estratégico vinculado a proyectos.</p>
+                <h2>Matriz FODA (Módulo Offline / CLI en Rust)</h2>
+                <p>Este módulo está diseñado para ejecutarse localmente mediante herramientas de análisis en Rust para evaluación estratégica de proyectos y capacidades.</p>
+                <blockquote style="border-left: 4px solid var(--border, #ccc); padding-left: 1rem; margin-top: 1rem; color: #555;">
+                    <em>"El análisis estructurado de Fortalezas, Oportunidades, Debilidades y Amenazas se procesa mediante binarios locales para mantener la soberanía total de los datos."</em>
+                </blockquote>
             </div>
 
             <!-- Módulo Plan Semanal -->
@@ -252,7 +292,7 @@
             }
         }
 
-        // Cálculo dinámico de carga
+        // Cálculo dinámico de carga semanal
         function calcularCarga() {
             const min = parseInt(document.getElementById('plan-minutos').value) || 0;
             const int = parseInt(document.getElementById('plan-intensidad').value) || 0;
@@ -329,6 +369,43 @@ ${especificaciones}
             await saveMarkdownFile('proyectos', fileName, markdownContent);
         }
 
+        // Guardar Registro de Entrenamiento en Drive
+        async function saveEntrenamiento(event) {
+            event.preventDefault();
+
+            const id = document.getElementById('entreno-id').value.trim();
+            const tipo = document.getElementById('entreno-tipo').value;
+            const minutos = document.getElementById('entreno-minutos').value;
+            const rpe = document.getElementById('entreno-rpe').value;
+            const cargaSesion = minutos * rpe;
+            const enfoque = document.getElementById('entreno-enfoque').value;
+            const notas = document.getElementById('entreno-notas').value;
+            const fechaActual = new Date().toISOString().split('T')[0];
+
+            const markdownContent = `---
+tipo: entrenamiento
+id: ${id}
+enfoque_tipo: ${tipo}
+date: ${fechaActual}
+---
+
+# Sesión de Entrenamiento: ${enfoque}
+
+- **ID:** ${id}
+- **Tipo:** ${tipo}
+- **Minutos:** ${minutos}
+- **RPE:** ${rpe}
+- **Carga de Sesión (sRPE):** ${cargaSesion}
+
+## Notas y Sensaciones
+${notas}
+`;
+
+            const fileName = `${id}.md`;
+            // Los entrenamientos se guardan en la subcarpeta 'analisis' o planes según prefieras
+            await saveMarkdownFile('analisis', fileName, markdownContent);
+        }
+
         // Función genérica para subir archivos Markdown a una subcarpeta de Drive
         async function saveMarkdownFile(subfolderName, fileName, markdownContent) {
             if (!rootFolderId || !accessToken) {
@@ -365,7 +442,7 @@ ${especificaciones}
 
                 if (uploadResponse.ok) {
                     console.log(`Archivo ${fileName} guardado correctamente en ${subfolderName}.`);
-                    alert("Proyecto guardado exitosamente en Google Drive.");
+                    alert("Registro guardado exitosamente en Google Drive.");
                 } else {
                     console.error("Error al subir archivo:", await uploadResponse.text());
                     alert("Error al guardar en Google Drive.");
