@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Revista | Armadillo Tacticals</title>
+<link rel="stylesheet" href="../base.css">
+</head>
+<body data-root="../">
+<header></header>
+<main class="wrap"><article id="art" class="article"></article></main>
+<footer></footer>
+<script src="../site.js"></script>
+<script>
+const slug = new URLSearchParams(location.search).get("a");
+fetch("../datos/articulos.json").then(r => r.json()).then(all => {
+  const a = all.find(x => x.slug === slug), el = $("art");
+  if (!a) { el.innerHTML = `<h1 style="font-size:var(--t3)">Artículo no encontrado</h1><p class="muted">Vuelve a la <a class="gold" href="./">revista</a>.</p>`; return; }
+  document.title = a.titulo + " | Armadillo Tacticals";
+  el.innerHTML = `<a class="crumb" href="./">← Revista</a>
+    <small class="gold" style="display:block">${esc(a.categoria)} · ${fechaLarga(a)} · ${lectura(a)} min de lectura</small>
+    <h1 style="font-size:var(--t4)">${esc(a.titulo)}</h1>` +
+    a.cuerpo.map(b => typeof b === "string" ? `<p>${esc(b)}</p>` : b.h ? `<h2>${esc(b.h)}</h2>` : `<ul>${b.lista.map(i => `<li>${esc(i)}</li>`).join("")}</ul>`).join("");
+});
+</script>
+</body>
+</html>
