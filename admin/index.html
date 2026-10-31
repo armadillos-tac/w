@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Portal de redacción | Armadillo Tacticals</title>
+<link rel="stylesheet" href="../base.css">
+<style>
+[hidden] { display: none !important; }
+input[type=checkbox] { width: auto; margin-right: var(--s1); }
+textarea { resize: vertical; }
+.check { display: flex; align-items: center; color: var(--text); font-size: var(--t0); margin: 0; }
+.hint { font-size: var(--t-1); color: var(--muted); max-width: none; }
+.row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); gap: var(--s2); }
+.err { color: #f87171; }
+</style>
+</head>
+<body data-root="../">
+<header></header>
+<main class="wrap stack">
+  <h1 style="font-size:var(--t4)">Portal de redacción</h1>
+  <p id="st" class="small gold" aria-live="polite"></p>
+
+  <div id="login" class="card stack" hidden>
+    <p class="hint">Conecta este navegador a tu repositorio. El token se guarda solo en este dispositivo.</p>
+    <div><label for="tk">Token de GitHub</label><input id="tk" type="password" autocomplete="off" placeholder="github_pat_..."></div>
+    <div class="fit" style="--min:12rem">
+      <div><label for="rp">Repositorio</label><input id="rp" value="armadillos-tac/w"></div>
+      <div><label for="rm">Rama</label><input id="rm" value="main"></div>
+    </div>
+    <button class="btn" id="conectar" type="button">Conectar</button>
+  </div>
+
+  <div id="panel" class="stack" hidden>
+    <div class="row">
+      <button class="btn" id="nuevo" type="button">Nuevo artículo</button>
+      <button class="btn" id="salir" type="button">Cerrar sesión</button>
+    </div>
+    <div class="fit narrow" id="lista"></div>
+
+    <div id="editor" class="stack" hidden>
+      <h2 style="font-size:var(--t2)" id="et"></h2>
+      <div class="fit wide" style="align-items:start">
+        <form id="f" class="stack" autocomplete="off">
+          <div><label for="ti">Título</label><input id="ti" required></div>
+          <div class="fit" style="--min:11rem;gap:var(--s2)">
+            <div><label for="fe">Fecha</label><input id="fe" type="date" required></div>
+            <div><label for="ca">Categoría</label><input id="ca" list="cats" required></div>
+          </div>
+          <datalist id="cats"></datalist>
+          <div><label for="sl">Dirección (slug)</label><input id="sl" readonly></div>
+          <div><label for="re">Resumen</label><textarea id="re" rows="2" required></textarea></div>
+          <div><label for="cu">Texto</label><textarea id="cu" rows="14" required></textarea>
+            <p class="hint" style="margin-top:var(--s1)">Separa párrafos con una línea en blanco. Usa <code>## Subtítulo</code> para un subtítulo y líneas que empiecen con <code>- </code> para una lista.</p></div>
+          <label class="check"><input type="checkbox" id="bo">Borrador (no se muestra en la revista)</label>
+          <button class="btn" type="submit">Guardar y publicar</button>
+          <button class="btn" id="borrar" type="button" hidden>Eliminar artículo</button>
+          <button class="btn" id="cancelar" type="button">Cancelar</button>
+        </form>
+        <div><small class="gold">Vista previa</small><article class="article card" id="pv" style="margin-top:var(--s1)"></article></div>
+      </div>
+    </div>
+  </div>
+</main>
+<footer></footer>
+<script src="../site.js"></script>
+<script>
+const KEY = "armadillo-admin";
+let cfg = null, arts = [], sha = "", cur = -1;
+try { cfg = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) {}
+
+const b64enc = s => { let t = ""; new TextEncoder().encode(s).forEach(c => t += String.fromCharCode(c)); return btoa(t); };
+const b64dec = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\s/g, "")), c => c.charCodeAt(0)));
+const api = () => `https://api.github.com/repos/${cfg.repo}/contents/datos/articulos.json`;
+const hdrs = () => ({ Authorization: "Bearer " + cfg.token, Accept: "application/vnd.github+json" });
+const say = (m, err) => { $("st").textContent = m; $("st").className = "small " + (err ? "err" : "gold"); };
+const hoy = () => new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
+const slugify = t => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 70);
+
+// Texto sencillo <-> bloques JSON
+const aTexto = c => c.map(b => typeof b === "string" ? b : b.h ? "## " + b.h : b.lista.map(i => "- " + i).join("\n")).join("\n\n");
+const aBloques = t => t.split(/\n\s*\n/).map(x => x.trim()).filter(Boolean).map(x => {
+  const l = x.split("\n").map(y => y.trim());
+  if (x.startsWith("## ")) return { h: x.slice(3).trim() };
+  if (l.every(y => y.startsWith("- "))) return { lista: l.map(y => y.slice(2).trim()) };
+  return l.join(" ");
+});
+
+async function load() {
+  say("Cargando…");
+  const r = await fetch(api() + "?ref=" + encodeURIComponent(cfg.rama) + "&t=" + Date.now(), { headers: hdrs(), cache: "no-store" });
+  if (!r.ok) throw new Error(r.status === 401 || r.status === 403 ? "Token inválido o sin permisos." : r.status === 404 ? "No encontré el repositorio o el archivo." : "Error " + r.status);
+  const d = await r.json();
+  sha = d.sha; arts = JSON.parse(b64dec(d.content));
+  $("login").hidden = true; $("panel").hidden = false;
+  say("Conectado a " + cfg.repo + ".");
+  lista();
+}
+async function guardar(msg) {
+  const r = await fetch(api(), { method: "PUT", headers: { ...hdrs(), "Content-Type": "application/json" },
+    body: JSON.stringify({ message: msg, content: b64enc(JSON.stringify(arts, null, 2) + "\n"), sha, branch: cfg.rama }) });
+  if (r.status === 409 || r.status === 422) throw new Error("El archivo cambió en GitHub. Recarga la página e inténtalo de nuevo.");
+  if (!r.ok) throw new Error("No se pudo guardar (error " + r.status + ").");
+  sha = (await r.json()).content.sha;
+}
+
+function lista() {
+  $("lista").innerHTML = arts.map((a, i) => ({ a, i })).sort((x, y) => y.a.fecha.localeCompare(x.a.fecha)).map(({ a, i }) => `
+    <article class="card stack"><small class="gold">${a.fecha}${a.borrador ? " · BORRADOR" : ""}</small>
+    <h3>${esc(a.titulo)}</h3><button class="btn" type="button" data-e="${i}">Editar</button></article>`).join("") || '<p class="muted">Aún no hay artículos.</p>';
+  $("cats").innerHTML = [...new Set(arts.map(a => a.categoria))].map(c => `<option value="${esc(c)}">`).join("");
+}
+function leer() {
+  return { slug: $("sl").value, titulo: $("ti").value.trim(), fecha: $("fe").value || hoy(), categoria: $("ca").value.trim(),
+    resumen: $("re").value.trim(), cuerpo: aBloques($("cu").value), ...($("bo").checked ? { borrador: true } : {}) };
+}
+function vista() {
+  const o = leer();
+  $("pv").innerHTML = `<small class="gold" style="display:block">${esc(o.categoria)} · ${fechaLarga(o)} · ${lectura(o)} min de lectura</small>
+    <h1 style="font-size:var(--t4)">${esc(o.titulo || "Sin título")}</h1>` + cuerpoHTML(o);
+}
+function abrir(i) {
+  cur = i;
+  const a = i < 0 ? { titulo: "", slug: "", fecha: hoy(), categoria: "", resumen: "", cuerpo: [] } : arts[i];
+  $("et").textContent = i < 0 ? "Nuevo artículo" : "Editar artículo";
+  $("ti").value = a.titulo; $("sl").value = a.slug; $("fe").value = a.fecha; $("ca").value = a.categoria;
+  $("re").value = a.resumen; $("cu").value = aTexto(a.cuerpo); $("bo").checked = !!a.borrador;
+  $("borrar").hidden = i < 0; $("editor").hidden = false; vista();
+  $("editor").scrollIntoView({ behavior: "smooth" });
+}
+
+$("conectar").onclick = async () => {
+  cfg = { token: $("tk").value.trim(), repo: $("rp").value.trim(), rama: $("rm").value.trim() || "main" };
+  try { await load(); try { localStorage.setItem(KEY, JSON.stringify(cfg)); } catch (e) {} }
+  catch (e) { say(e.message, true); }
+};
+$("salir").onclick = () => { try { localStorage.removeItem(KEY); } catch (e) {} location.reload(); };
+$("nuevo").onclick = () => abrir(-1);
+$("cancelar").onclick = () => { $("editor").hidden = true; };
+$("lista").onclick = e => { const b = e.target.closest("[data-e]"); if (b) abrir(+b.dataset.e); };
+$("f").addEventListener("input", e => {
+  if (e.target.id === "ti" && cur < 0) $("sl").value = slugify($("ti").value);
+  vista();
+});
+$("f").addEventListener("submit", async e => {
+  e.preventDefault();
+  const o = leer(), prev = structuredClone(arts);
+  if (!o.cuerpo.length) return say("Escribe el texto del artículo.", true);
+  if (cur < 0) { let s = o.slug || "articulo", n = 2; while (arts.some(a => a.slug === o.slug)) o.slug = s + "-" + n++; arts.push(o); cur = arts.length - 1; $("sl").value = o.slug; }
+  else arts[cur] = o;
+  try { say("Publicando…"); await guardar("Revista: " + (prev.length < arts.length ? "nuevo" : "editar") + " «" + o.titulo + "»"); lista(); $("borrar").hidden = false;
+    say(o.borrador ? "Guardado como borrador." : "Publicado. Será visible en 1 o 2 minutos."); }
+  catch (er) { arts = prev; say(er.message, true); }
+});
+$("borrar").onclick = async () => {
+  if (!confirm("¿Eliminar este artículo? Esta acción no se puede deshacer desde aquí.")) return;
+  const prev = structuredClone(arts), t = arts[cur].titulo;
+  arts.splice(cur, 1);
+  try { await guardar("Revista: eliminar «" + t + "»"); $("editor").hidden = true; lista(); say("Artículo eliminado."); }
+  catch (er) { arts = prev; say(er.message, true); }
+};
+
+if (cfg && cfg.token) load().catch(e => { say(e.message, true); $("login").hidden = false; });
+else $("login").hidden = false;
+</script>
+</body>
+</html>
