@@ -97,7 +97,10 @@ f.addEventListener("submit", async e => {
       body: JSON.stringify({ tipo: actual, id: x.archivo(v), markdown: md }) });
     if (r.status === 401) throw new Error("clave incorrecta");
     if (!r.ok) throw new Error("error " + r.status);
-    say("Guardado en el repositorio y enviado a Discord.");
+    const { canales = {} } = await r.json();
+    say(canales.github && canales.discord ? "Guardado en el repositorio y enviado a Discord."
+      : canales.github ? "Guardado en el repositorio, pero Discord falló."
+      : "ATENCIÓN: solo llegó a Discord; el repositorio falló.");
     f.reset(); calcular();
   } catch (er) { say("No se pudo guardar: " + er.message); }
 });

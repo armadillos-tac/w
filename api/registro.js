@@ -63,11 +63,12 @@ export default async function handler(req, res) {
   };
 
   // Basta con que un canal funcione para no perder el registro
-  const tareas = [];
-  if (GITHUB_TOKEN && GITHUB_REPO) tareas.push(github());
-  if (DISCORD_WEBHOOK_URL) tareas.push(discord());
-  const r = await Promise.allSettled(tareas);
-  r.forEach(x => x.status === 'rejected' && console.error('registro:', x.reason));
-  if (!r.some(x => x.status === 'fulfilled')) return res.status(500).json({ error: 'No se pudo guardar' });
-  res.status(200).json({ status: 'success' });
+  const canales = { github: false, discord: false };
+  const intentar = async (nombre, activo, fn) => {
+    if (!activo) return console.error('registro:', nombre, 'sin configurar');
+    try { await fn(); canales[nombre] = true; } catch (e) { console.error('registro:', nombre, e); }
+  };
+  await Promise.all([intentar('github', GITHUB_TOKEN && GITHUB_REPO, github), intentar('discord', DISCORD_WEBHOOK_URL, discord)]);
+  if (!canales.github && !canales.discord) return res.status(500).json({ error: 'No se pudo guardar', canales });
+  res.status(200).json({ status: 'success', canales });
 }
