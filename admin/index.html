@@ -145,13 +145,13 @@ $("f").addEventListener("input", e => {
 });
 $("f").addEventListener("submit", async e => {
   e.preventDefault();
-  const o = leer(), prev = structuredClone(arts);
+  const o = leer(), prev = structuredClone(arts), antes = cur;
   if (!o.cuerpo.length) return say("Escribe el texto del artículo.", true);
-  if (cur < 0) { let s = o.slug || "articulo", n = 2; while (arts.some(a => a.slug === o.slug)) o.slug = s + "-" + n++; arts.push(o); cur = arts.length - 1; $("sl").value = o.slug; }
+  if (cur < 0) { const s = o.slug = o.slug || "articulo"; let n = 2; while (arts.some(a => a.slug === o.slug)) o.slug = s + "-" + n++; arts.push(o); cur = arts.length - 1; $("sl").value = o.slug; }
   else arts[cur] = o;
   try { say("Publicando…"); await guardar("Revista: " + (prev.length < arts.length ? "nuevo" : "editar") + " «" + o.titulo + "»"); lista(); $("borrar").hidden = false;
     say(o.borrador ? "Guardado como borrador." : "Publicado. Será visible en 1 o 2 minutos."); }
-  catch (er) { arts = prev; say(er.message, true); }
+  catch (er) { arts = prev; cur = antes; say(er.message, true); }
 });
 $("borrar").onclick = async () => {
   if (!confirm("¿Eliminar este artículo? Esta acción no se puede deshacer desde aquí.")) return;

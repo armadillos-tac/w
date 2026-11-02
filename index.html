@@ -69,6 +69,7 @@
           <select id="t"><option>Chasis y Soportes Modulares</option><option>Equipamiento Táctico y Operativo</option><option>Portaherramientas para Oficios e Industria</option><option>Consultoría en Ergonomía y Prototipado I+D</option><option>Desarrollo de Pieza Única a Medida</option></select></div>
         <div><label for="m">Materiales Deseados</label><input id="m" type="text" required placeholder="Ej. Cuero vacuno, Aluminio aeronáutico, Acero..."></div>
         <div><label for="d">Descripción del Proyecto</label><textarea id="d" rows="4" required placeholder="Detalla las especificaciones técnicas, medidas o requerimientos biomecánicos..."></textarea></div>
+        <input id="web" name="web" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
         <button class="btn" type="submit">Enviar Solicitud de Proyecto</button>
       </form>
     </div>
@@ -85,15 +86,6 @@
 
 <footer></footer>
 
-<dialog id="product-modal">
-  <div class="stack">
-    <h3 id="m-title"></h3>
-    <p class="gold small" id="m-mat"></p>
-    <p class="muted" id="m-desc"></p>
-    <button class="btn" type="button" data-close>Cerrar</button>
-  </div>
-</dialog>
-
 <dialog id="ok-modal">
   <div class="stack center">
     <h3>¡Solicitud Recibida!</h3>
@@ -104,15 +96,13 @@
 
 <script src="site.js"></script>
 <script>
-// Datos en un solo lugar: el HTML de productos se genera a partir de aquí
 const news = [
   "Estudio publicado: Análisis biomecánico de distribución de cargas axiales en arneses de alta resistencia.",
   "Nuevo prototipo de chasis modular probado en condiciones extremas de fricción y torsión.",
   "Consultoría I+D: Alianzas estratégicas para el desarrollo de equipo ergonómico industrial certificado."
 ];
-let products = [];
 
-// Carrusel: módulo aritmético, un solo temporizador que se reinicia al interactuar
+// Carrusel: un solo temporizador que se reinicia al interactuar
 let i = 0, timer;
 const text = $("news-text");
 function show(n) {
@@ -122,74 +112,32 @@ function show(n) {
   clearInterval(timer);
   timer = setInterval(() => show(i + 1), 6000);
 }
-const hdr = document.querySelector("header");
-new ResizeObserver(() => {
-  const fijo = getComputedStyle(hdr).position === "sticky";
-  document.documentElement.style.scrollPaddingTop = fijo ? hdr.offsetHeight + 8 + "px" : "1rem";
-}).observe(hdr);
 $("next").onclick = () => show(i + 1);
 $("prev").onclick = () => show(i - 1);
 text.textContent = news[0];
 timer = setInterval(() => show(i + 1), 6000);
 
-// Productos
-const render = () => $("products").innerHTML = products.map(([k, name, mats, short], n) => `
-  <div class="cell"><article class="card product">
-    <div class="ph">[ PROTOTIPO ${k} ]</div>
-    <div class="body">
-      <div class="stack"><h3>${name}</h3><p class="teal small">${mats}</p><p class="muted small">${short}</p></div>
-      <button class="btn" type="button" data-i="${n}">Ver Detalles</button>
-    </div>
-  </article></div>`).join("");
-fetch("datos/productos.json").then(r => r.json()).then(d => {
-  products = d.map(p => [p.codigo, p.nombre, p.materiales, p.resumen, p.materiales_detalle, p.uso]);
-  render();
-});
-$("products").addEventListener("click", e => {
-  const b = e.target.closest("[data-i]"); if (!b) return;
-  const [, name, , , mat, desc] = products[b.dataset.i];
-  $("m-title").textContent = name;
-  $("m-mat").textContent = "Materiales: " + mat;
-  $("m-desc").textContent = desc;
-  $("product-modal").showModal();
-});
+// Compensa la altura del header fijo al saltar a un ancla
+const hdr = document.querySelector("header");
+new ResizeObserver(() => {
+  const fijo = getComputedStyle(hdr).position === "sticky";
+  document.documentElement.style.scrollPaddingTop = fijo ? hdr.offsetHeight + 8 + "px" : "1rem";
+}).observe(hdr);
 
-// Diálogos
-document.querySelectorAll("dialog").forEach(d => {
-  d.addEventListener("click", e => {
-    const r = d.getBoundingClientRect();
-    const fuera = e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
-    if (fuera || e.target.hasAttribute("data-close")) d.close();
-  });
-});
+fetch(ROOT + "datos/productos.json").then(r => r.json()).then(d => productos($("products"), d));
+
 $("quote").addEventListener("submit", async e => {
   e.preventDefault();
-  
-  const datos = {
-    nombre: $("n").value.trim(),
-    correo: $("e").value.trim(),
-    tipo: $("t").value,
-    materiales: $("m").value.trim(),
-    descripcion: $("d").value.trim()
-  };
-
   try {
-    // Apuntamos a nuestra Serverless Function segura en Vercel
-    const response = await fetch('/api/cotizar', {
+    const r = await fetch("/api/registro", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(datos)
+      body: JSON.stringify({ tipo: "cotizacion", web: $("web").value, nombre: $("n").value.trim(), correo: $("e").value.trim(), trabajo: $("t").value, materiales: $("m").value.trim(), descripcion: $("d").value.trim() })
     });
-
-    if (!response.ok) {
-      throw new Error("Error en el servidor al procesar la cotización");
-    }
-
+    if (!r.ok) throw new Error(r.status);
     $("ok-modal").showModal();
     e.target.reset();
-
   } catch (err) {
-    console.error("Error:", err);
     alert("Hubo un problema al enviar la solicitud. Inténtalo de nuevo.");
   }
 });

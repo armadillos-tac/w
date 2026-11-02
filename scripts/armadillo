@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Administra los registros del repositorio privado de datos (clonado en tu equipo).
+set -euo pipefail
+DIR="${ARMADILLO_DIR:-$HOME/armadillo-datos}"
+cd "$DIR" 2>/dev/null || { echo "No existe $DIR (define ARMADILLO_DIR)" >&2; exit 1; }
+
+case "${1:-}" in
+  sync)       git pull --rebase --quiet && echo "Al día." ;;
+  pendientes) git pull --rebase --quiet; grep -rl --include='*.md' '^estado: pendiente' . | sed 's|^\./||' | sort || true ;;
+  ver)        "${PAGER:-less}" "${2:?Indica el archivo}" ;;
+  buscar)     git pull --rebase --quiet; grep -rniI --include='*.md' -- "${2:?Indica el texto}" . || true ;;
+  estado)
+    f="${2:?Indica el archivo}"; n="${3:?Indica el nuevo estado}"
+    [[ $n =~ ^[a-z0-9-]+$ ]] || { echo "Estado inválido (usa minúsculas, números y guiones)" >&2; exit 1; }
+    grep -q '^estado:' "$f" || { echo "Ese archivo no tiene campo 'estado'" >&2; exit 1; }
+    git pull --rebase --quiet
+    sed -i "s/^estado:.*/estado: $n/" "$f"
+    git add "$f" && git commit -qm "estado: $f -> $n" && git push -q && echo "$f -> $n" ;;
+  *) cat <<'U'
+Uso: armadillo <comando>
+  sync                     descarga lo nuevo
+  pendientes               lista los registros con estado: pendiente
+  ver <archivo>            muestra un registro
+  buscar <texto>           busca en todos los registros
+  estado <archivo> <x>     cambia el estado y lo sube (ej. en-proceso, cerrada)
+U
+  ;;
+esac
