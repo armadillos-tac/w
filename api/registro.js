@@ -32,7 +32,7 @@ export default async function handler(req, res) {
     resumen = `**${f.nombre}** · ${f.correo}\n${f.tipo}`;
   } else {
     // Privado (Centro de Control): exige la clave
-    const ok = CENTRO_CLAVE && timingSafeEqual(hash(req.headers['x-clave']), hash(CENTRO_CLAVE));
+    const ok = CENTRO_CLAVE && timingSafeEqual(hash(String(req.headers['x-clave'] ?? '').trim()), hash(CENTRO_CLAVE.trim()));
     if (!ok) return res.status(401).json({ error: 'Clave incorrecta' });
     id = slug(b.id);
     md = String(b.markdown ?? '').slice(0, 20000);
